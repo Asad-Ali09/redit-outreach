@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 const ProductCard = ({ product, onEdit, onDelete }) => {
   return (
@@ -12,17 +12,36 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
       transition={{ duration: 0.3 }}
       layout
     >
-      <div className="relative">
-        <img
-          className="h-48 w-full object-cover"
-          src={product.image || "https://via.placeholder.com/300x150?text=Product+Image"}
-          alt={product.name}
-        />
-      </div>
       <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">{product.name}</h3>
-        <p className="mt-1 text-sm text-gray-500 line-clamp-3">{product.description}</p>
-        {product.price && <p className="mt-2 text-sm font-semibold text-gray-900">${product.price.toFixed(2)}</p>}
+        <h3 className="text-lg leading-6 font-medium text-gray-900">
+          {product.name}
+        </h3>
+        <p className="mt-1 text-sm text-gray-500 line-clamp-3">
+          {product.description}
+        </p>
+        <div className="mt-2 space-y-1">
+          {product.keyword && (
+            <p className="text-xs text-gray-500">
+              <span className="font-semibold">Keywords:</span> {product.keyword}
+            </p>
+          )}
+          {product.domain && (
+            <p className="text-xs text-gray-500">
+              <span className="font-semibold">Domain:</span> {product.domain}
+            </p>
+          )}
+          {product.location && (
+            <p className="text-xs text-gray-500">
+              <span className="font-semibold">Location:</span>{" "}
+              {product.location.city}, {product.location.country}
+            </p>
+          )}
+          {product.price && (
+            <p className="text-sm font-semibold text-gray-900">
+              ${product.price.toFixed(2)}
+            </p>
+          )}
+        </div>
       </div>
       <div className="bg-gray-50 px-4 py-4 sm:px-6 flex justify-between">
         <button
@@ -39,7 +58,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         </button>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default ProductCard
+export default ProductCard;

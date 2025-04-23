@@ -1,82 +1,176 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { createOutreach } from "../redux/slices/outreachSlice"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createOutreach } from "../redux/slices/outreachSlice";
+import { motion } from "framer-motion";
 
 const OutreachForm = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { products } = useSelector((state) => state.products)
-  const { loading, success } = useSelector((state) => state.outreaches)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { products } = useSelector((state) => state.products);
+  const { loading, success } = useSelector((state) => state.outreaches);
 
   const [formData, setFormData] = useState({
-    subreddit: "",
+    subreddits: [],
     productId: "",
-    autoReply: false,
-  })
+    dateRange: {
+      startDate: "",
+      endDate: "",
+    },
+    maxPosts: 50,
+    replyType: "autoReplyOnce", // Default to auto reply once
+    replyMessage: "", // For manual reply
+  });
 
-  const [errors, setErrors] = useState({})
+  const [subredditInput, setSubredditInput] = useState("");
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (success) {
-      navigate("/outreaches")
+      navigate("/outreaches");
     }
-  }, [success, navigate])
+  }, [success, navigate]);
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
-    if (!formData.subreddit.trim()) {
-      newErrors.subreddit = "Subreddit is required"
-    } else if (!formData.subreddit.trim().startsWith("r/")) {
-      newErrors.subreddit = "Subreddit must start with r/"
+    if (formData.subreddits.length === 0) {
+      newErrors.subreddits = "At least one subreddit is required";
     }
 
     if (!formData.productId) {
-      newErrors.productId = "Please select a product"
+      newErrors.productId = "Please select a product";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    if (!formData.dateRange.startDate) {
+      newErrors["dateRange.startDate"] = "Start date is required";
+    }
+
+    if (!formData.dateRange.endDate) {
+      newErrors["dateRange.endDate"] = "End date is required";
+    }
+
+    if (formData.dateRange.startDate && formData.dateRange.endDate) {
+      const start = new Date(formData.dateRange.startDate);
+      const end = new Date(formData.dateRange.endDate);
+      if (start > end) {
+        newErrors["dateRange.endDate"] = "End date must be after start date";
+      }
+    }
+
+    if (!formData.maxPosts || formData.maxPosts <= 0) {
+      newErrors.maxPosts = "Maximum posts must be a positive number";
+    }
+
+    if (
+      formData.replyType === "manualReplyOnce" &&
+      !formData.replyMessage.trim()
+    ) {
+      newErrors.replyMessage = "Reply message is required for manual reply";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }))
+      [name]: value,
+    }));
 
     // Clear error for this field when user types
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: undefined,
-      }))
+      }));
     }
-  }
+  };
+
+  const handleDateRangeChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      dateRange: {
+        ...prev.dateRange,
+        [name]: value,
+      },
+    }));
+
+    // Clear error for this field when user types
+    if (errors[`dateRange.${name}`]) {
+      setErrors((prev) => ({
+        ...prev,
+        [`dateRange.${name}`]: undefined,
+      }));
+    }
+  };
+
+  const handleSubredditInputChange = (e) => {
+    setSubredditInput(e.target.value);
+  };
+
+  const handleSubredditKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addSubreddit();
+    }
+  };
+
+  const addSubreddit = () => {
+    const subreddit = subredditInput.trim();
+    if (subreddit && !formData.subreddits.includes(subreddit)) {
+      // Format subreddit to ensure it starts with r/
+      const formattedSubreddit = subreddit.startsWith("r/")
+        ? subreddit
+        : `r/${subreddit}`;
+      setFormData((prev) => ({
+        ...prev,
+        subreddits: [...prev.subreddits, formattedSubreddit],
+      }));
+      setSubredditInput("");
+
+      // Clear subreddits error if it exists
+      if (errors.subreddits) {
+        setErrors((prev) => ({
+          ...prev,
+          subreddits: undefined,
+        }));
+      }
+    }
+  };
+
+  const removeSubreddit = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      subreddits: prev.subreddits.filter((_, i) => i !== index),
+    }));
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
     // Find the selected product to include its name
-    const selectedProduct = products.find((p) => p.id.toString() === formData.productId.toString())
+    const selectedProduct = products.find(
+      (p) => p.id.toString() === formData.productId.toString()
+    );
 
     const outreachData = {
       ...formData,
       productId: Number.parseInt(formData.productId),
       productName: selectedProduct ? selectedProduct.name : "Unknown Product",
-    }
+    };
 
-    dispatch(createOutreach(outreachData))
-  }
+    dispatch(createOutreach(outreachData));
+  };
 
   return (
     <motion.form
@@ -87,29 +181,81 @@ const OutreachForm = () => {
       transition={{ duration: 0.3 }}
     >
       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-        <div className="sm:col-span-4">
-          <label htmlFor="subreddit" className="block text-sm font-medium text-gray-700">
-            Subreddit
+        {/* Subreddits Input */}
+        <div className="sm:col-span-6">
+          <label
+            htmlFor="subreddit-input"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Subreddits
           </label>
           <div className="mt-1">
-            <input
-              type="text"
-              name="subreddit"
-              id="subreddit"
-              value={formData.subreddit}
-              onChange={handleChange}
-              placeholder="r/marketing"
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
-                errors.subreddit ? "border-red-300" : ""
-              }`}
-            />
-            {errors.subreddit && <p className="mt-2 text-sm text-red-600">{errors.subreddit}</p>}
+            <div className="flex">
+              <input
+                type="text"
+                id="subreddit-input"
+                value={subredditInput}
+                onChange={handleSubredditInputChange}
+                onKeyDown={handleSubredditKeyDown}
+                placeholder="Enter subreddit and press Enter (e.g., r/marketing)"
+                className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                  errors.subreddits ? "border-red-300" : ""
+                }`}
+              />
+              <button
+                type="button"
+                onClick={addSubreddit}
+                className="ml-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
+              >
+                Add
+              </button>
+            </div>
+            {errors.subreddits && (
+              <p className="mt-2 text-sm text-red-600">{errors.subreddits}</p>
+            )}
           </div>
-          <p className="mt-2 text-sm text-gray-500">Enter the subreddit you want to target (e.g., r/marketing).</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Enter subreddits you want to target (e.g., r/marketing).
+          </p>
+
+          {/* Subreddit Tags */}
+          {formData.subreddits.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {formData.subreddits.map((subreddit, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800"
+                >
+                  {subreddit}
+                  <button
+                    type="button"
+                    onClick={() => removeSubreddit(index)}
+                    className="ml-1.5 inline-flex text-blue-400 hover:text-blue-600 focus:outline-none"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
+        {/* Product Selection */}
         <div className="sm:col-span-4">
-          <label htmlFor="productId" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="productId"
+            className="block text-sm font-medium text-gray-700"
+          >
             Product
           </label>
           <div className="mt-1">
@@ -129,31 +275,207 @@ const OutreachForm = () => {
                 </option>
               ))}
             </select>
-            {errors.productId && <p className="mt-2 text-sm text-red-600">{errors.productId}</p>}
+            {errors.productId && (
+              <p className="mt-2 text-sm text-red-600">{errors.productId}</p>
+            )}
           </div>
-          <p className="mt-2 text-sm text-gray-500">Select the product you want to promote in this subreddit.</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Select the product you want to promote in these subreddits.
+          </p>
         </div>
 
-        <div className="sm:col-span-6">
-          <div className="flex items-start">
-            <div className="flex items-center h-5">
+        {/* Date Range */}
+        <div className="sm:col-span-3">
+          <label
+            htmlFor="startDate"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Start Date
+          </label>
+          <div className="mt-1">
+            <input
+              type="date"
+              id="startDate"
+              name="startDate"
+              value={formData.dateRange.startDate}
+              onChange={handleDateRangeChange}
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                errors["dateRange.startDate"] ? "border-red-300" : ""
+              }`}
+            />
+            {errors["dateRange.startDate"] && (
+              <p className="mt-2 text-sm text-red-600">
+                {errors["dateRange.startDate"]}
+              </p>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-gray-500">
+            Target posts from this date.
+          </p>
+        </div>
+
+        <div className="sm:col-span-3">
+          <label
+            htmlFor="endDate"
+            className="block text-sm font-medium text-gray-700"
+          >
+            End Date
+          </label>
+          <div className="mt-1">
+            <input
+              type="date"
+              id="endDate"
+              name="endDate"
+              value={formData.dateRange.endDate}
+              onChange={handleDateRangeChange}
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                errors["dateRange.endDate"] ? "border-red-300" : ""
+              }`}
+            />
+            {errors["dateRange.endDate"] && (
+              <p className="mt-2 text-sm text-red-600">
+                {errors["dateRange.endDate"]}
+              </p>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-gray-500">
+            Target posts until this date.
+          </p>
+        </div>
+
+        {/* Max Posts */}
+        <div className="sm:col-span-2">
+          <label
+            htmlFor="maxPosts"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Maximum Posts
+          </label>
+          <div className="mt-1">
+            <input
+              type="number"
+              id="maxPosts"
+              name="maxPosts"
+              min="1"
+              value={formData.maxPosts}
+              onChange={handleChange}
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                errors.maxPosts ? "border-red-300" : ""
+              }`}
+            />
+            {errors.maxPosts && (
+              <p className="mt-2 text-sm text-red-600">{errors.maxPosts}</p>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-gray-500">
+            Maximum number of posts to process.
+          </p>
+        </div>
+
+        {/* Reply Type */}
+        <div className="sm:col-span-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Reply Type
+          </label>
+          <div className="mt-2 space-y-4">
+            <div className="flex items-center">
               <input
-                id="autoReply"
-                name="autoReply"
-                type="checkbox"
-                checked={formData.autoReply}
+                id="autoReplyOnce"
+                name="replyType"
+                type="radio"
+                value="autoReplyOnce"
+                checked={formData.replyType === "autoReplyOnce"}
                 onChange={handleChange}
-                className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300 rounded"
+                className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
               />
-            </div>
-            <div className="ml-3 text-sm">
-              <label htmlFor="autoReply" className="font-medium text-gray-700">
-                Enable Auto-Reply
+              <label
+                htmlFor="autoReplyOnce"
+                className="ml-3 block text-sm font-medium text-gray-700"
+              >
+                Auto Reply Once
+                <p className="text-xs text-gray-500">
+                  The bot will reply once using a predefined template message.
+                </p>
               </label>
-              <p className="text-gray-500">Automatically reply to relevant posts in this subreddit.</p>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="manualReplyOnce"
+                name="replyType"
+                type="radio"
+                value="manualReplyOnce"
+                checked={formData.replyType === "manualReplyOnce"}
+                onChange={handleChange}
+                className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+              />
+              <label
+                htmlFor="manualReplyOnce"
+                className="ml-3 block text-sm font-medium text-gray-700"
+              >
+                Manual Reply Once
+                <p className="text-xs text-gray-500">
+                  You will provide a custom message to reply once.
+                </p>
+              </label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="autoReplyComplete"
+                name="replyType"
+                type="radio"
+                value="autoReplyComplete"
+                checked={formData.replyType === "autoReplyComplete"}
+                onChange={handleChange}
+                className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+              />
+              <label
+                htmlFor="autoReplyComplete"
+                className="ml-3 block text-sm font-medium text-gray-700"
+              >
+                Auto Reply Complete
+                <p className="text-xs text-gray-500">
+                  The bot will continuously reply to the potential client.
+                </p>
+              </label>
             </div>
           </div>
         </div>
+
+        {/* Manual Reply Message */}
+        {formData.replyType === "manualReplyOnce" && (
+          <div className="sm:col-span-6">
+            <label
+              htmlFor="replyMessage"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Reply Message
+            </label>
+            <div className="mt-1">
+              <textarea
+                id="replyMessage"
+                name="replyMessage"
+                rows={4}
+                value={formData.replyMessage}
+                onChange={handleChange}
+                placeholder="Enter your custom reply message here..."
+                className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                  errors.replyMessage ? "border-red-300" : ""
+                }`}
+              />
+              {errors.replyMessage && (
+                <p className="mt-2 text-sm text-red-600">
+                  {errors.replyMessage}
+                </p>
+              )}
+            </div>
+            <p className="mt-2 text-sm text-gray-500">
+              This message will be sent as a reply to posts matching your
+              criteria.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="pt-5">
@@ -178,7 +500,14 @@ const OutreachForm = () => {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -194,7 +523,7 @@ const OutreachForm = () => {
         </div>
       </div>
     </motion.form>
-  )
-}
+  );
+};
 
-export default OutreachForm
+export default OutreachForm;

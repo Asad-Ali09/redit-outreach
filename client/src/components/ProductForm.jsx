@@ -1,95 +1,141 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { createProduct, updateProduct } from "../redux/slices/productSlice"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createProduct, updateProduct } from "../redux/slices/productSlice";
+import { motion } from "framer-motion";
 
 const ProductForm = ({ product, isNew }) => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { loading, success } = useSelector((state) => state.products)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, success } = useSelector((state) => state.products);
 
+  // Update the initial form state to include the new fields and remove image
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
-    image: "",
-  })
+    keyword: "",
+    domain: "",
+    location: {
+      city: "",
+      country: "",
+    },
+  });
 
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({});
 
+  // Update the useEffect to handle the new fields when editing an existing product
   useEffect(() => {
     if (product && !isNew) {
       setFormData({
         name: product.name || "",
         description: product.description || "",
         price: product.price ? product.price.toString() : "",
-        image: product.image || "",
-      })
+        keyword: product.keyword || "",
+        domain: product.domain || "",
+        location: product.location || { city: "", country: "" },
+      });
     }
-  }, [product, isNew])
+  }, [product, isNew]);
 
   useEffect(() => {
     if (success) {
-      navigate("/products")
+      navigate("/products");
     }
-  }, [success, navigate])
+  }, [success, navigate]);
 
+  // Update the validateForm function to validate the new fields
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Product name is required"
+      newErrors.name = "Product name is required";
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = "Product description is required"
+      newErrors.description = "Product description is required";
     }
 
     if (formData.price && isNaN(Number.parseFloat(formData.price))) {
-      newErrors.price = "Price must be a valid number"
+      newErrors.price = "Price must be a valid number";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    if (!formData.keyword.trim()) {
+      newErrors.keyword = "Keywords are required";
+    }
+
+    if (!formData.domain.trim()) {
+      newErrors.domain = "Domain is required";
+    }
+
+    if (!formData.location.city.trim()) {
+      newErrors["location.city"] = "City is required";
+    }
+
+    if (!formData.location.country.trim()) {
+      newErrors["location.country"] = "Country is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
+    }));
 
     // Clear error for this field when user types
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: undefined,
-      }))
+      }));
     }
-  }
+  };
+
+  // Add a function to handle nested location changes
+  const handleLocationChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        [name]: value,
+      },
+    }));
+
+    // Clear error for this field when user types
+    if (errors[`location.${name}`]) {
+      setErrors((prev) => ({
+        ...prev,
+        [`location.${name}`]: undefined,
+      }));
+    }
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
     const productData = {
       ...formData,
       price: formData.price ? Number.parseFloat(formData.price) : 0,
-    }
+    };
 
     if (!isNew) {
-      dispatch(updateProduct({ id: product.id, ...productData }))
+      dispatch(updateProduct({ id: product.id, ...productData }));
     } else {
-      dispatch(createProduct(productData))
+      dispatch(createProduct(productData));
     }
-  }
+  };
 
   return (
     <motion.form
@@ -101,7 +147,10 @@ const ProductForm = ({ product, isNew }) => {
     >
       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
         <div className="sm:col-span-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700"
+          >
             Product Name
           </label>
           <div className="mt-1">
@@ -115,12 +164,17 @@ const ProductForm = ({ product, isNew }) => {
                 errors.name ? "border-red-300" : ""
               }`}
             />
-            {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
+            {errors.name && (
+              <p className="mt-2 text-sm text-red-600">{errors.name}</p>
+            )}
           </div>
         </div>
 
         <div className="sm:col-span-6">
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-gray-700"
+          >
             Description
           </label>
           <div className="mt-1">
@@ -134,13 +188,144 @@ const ProductForm = ({ product, isNew }) => {
                 errors.description ? "border-red-300" : ""
               }`}
             />
-            {errors.description && <p className="mt-2 text-sm text-red-600">{errors.description}</p>}
+            {errors.description && (
+              <p className="mt-2 text-sm text-red-600">{errors.description}</p>
+            )}
           </div>
-          <p className="mt-2 text-sm text-gray-500">Write a few sentences about your product.</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Write a few sentences about your product.
+          </p>
+        </div>
+
+        <div className="sm:col-span-4">
+          <label
+            htmlFor="keyword"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Keywords
+          </label>
+          <div className="mt-1">
+            <input
+              type="text"
+              name="keyword"
+              id="keyword"
+              value={formData.keyword}
+              onChange={handleChange}
+              placeholder="marketing, sales, technology"
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                errors.keyword ? "border-red-300" : ""
+              }`}
+            />
+            {errors.keyword && (
+              <p className="mt-2 text-sm text-red-600">{errors.keyword}</p>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-gray-500">
+            Enter keywords separated by commas.
+          </p>
+        </div>
+
+        <div className="sm:col-span-4">
+          <label
+            htmlFor="domain"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Domain
+          </label>
+          <div className="mt-1">
+            <input
+              type="text"
+              name="domain"
+              id="domain"
+              value={formData.domain}
+              onChange={handleChange}
+              placeholder="ecommerce, saas, healthcare"
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                errors.domain ? "border-red-300" : ""
+              }`}
+            />
+            {errors.domain && (
+              <p className="mt-2 text-sm text-red-600">{errors.domain}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="sm:col-span-3">
+          <label
+            htmlFor="city"
+            className="block text-sm font-medium text-gray-700"
+          >
+            City
+          </label>
+          <div className="mt-1">
+            <select
+              id="city"
+              name="city"
+              value={formData.location.city}
+              onChange={handleLocationChange}
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                errors["location.city"] ? "border-red-300" : ""
+              }`}
+            >
+              <option value="">Select a city</option>
+              <option value="New York">New York</option>
+              <option value="San Francisco">San Francisco</option>
+              <option value="London">London</option>
+              <option value="Paris">Paris</option>
+              <option value="Tokyo">Tokyo</option>
+              <option value="Sydney">Sydney</option>
+              <option value="Berlin">Berlin</option>
+              <option value="Toronto">Toronto</option>
+            </select>
+            {errors["location.city"] && (
+              <p className="mt-2 text-sm text-red-600">
+                {errors["location.city"]}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="sm:col-span-3">
+          <label
+            htmlFor="country"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Country
+          </label>
+          <div className="mt-1">
+            <select
+              id="country"
+              name="country"
+              value={formData.location.country}
+              onChange={handleLocationChange}
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                errors["location.country"] ? "border-red-300" : ""
+              }`}
+            >
+              <option value="">Select a country</option>
+              <option value="United States">United States</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+              <option value="Japan">Japan</option>
+              <option value="China">China</option>
+              <option value="India">India</option>
+            </select>
+            {errors["location.country"] && (
+              <p className="mt-2 text-sm text-red-600">
+                {errors["location.country"]}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="price"
+            className="block text-sm font-medium text-gray-700"
+          >
             Price
           </label>
           <div className="mt-1 relative rounded-md shadow-sm">
@@ -165,25 +350,9 @@ const ProductForm = ({ product, isNew }) => {
               </span>
             </div>
           </div>
-          {errors.price && <p className="mt-2 text-sm text-red-600">{errors.price}</p>}
-        </div>
-
-        <div className="sm:col-span-6">
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-            Image URL
-          </label>
-          <div className="mt-1">
-            <input
-              type="text"
-              name="image"
-              id="image"
-              value={formData.image}
-              onChange={handleChange}
-              className="shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md"
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-          <p className="mt-2 text-sm text-gray-500">Enter a URL for your product image.</p>
+          {errors.price && (
+            <p className="mt-2 text-sm text-red-600">{errors.price}</p>
+          )}
         </div>
       </div>
 
@@ -209,7 +378,14 @@ const ProductForm = ({ product, isNew }) => {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -225,7 +401,7 @@ const ProductForm = ({ product, isNew }) => {
         </div>
       </div>
     </motion.form>
-  )
-}
+  );
+};
 
-export default ProductForm
+export default ProductForm;
