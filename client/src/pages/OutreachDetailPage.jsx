@@ -6,7 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchOutreachById,
   fetchOutreachAnalytics,
+  updateOutreach,
 } from "../redux/slices/outreachSlice";
+import { fetchProducts } from "../redux/slices/productSlice";
 import { motion } from "framer-motion";
 import {
   LineChart,
@@ -28,20 +30,212 @@ const OutreachDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { currentOutreach, analytics, loading, error } = useSelector(
+  const { currentOutreach, analytics, loading, error, success } = useSelector(
     (state) => state.outreaches
   );
   const { products } = useSelector((state) => state.products);
 
   const [activeTab, setActiveTab] = useState("overview");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [subredditInput, setSubredditInput] = useState("");
+  const [formErrors, setFormErrors] = useState({});
+
+  // Form state for editing
+  const [formData, setFormData] = useState({
+    subreddits: [],
+    productId: "",
+    dateRange: {
+      startDate: "",
+      endDate: "",
+    },
+    maxPosts: 50,
+    replyType: "autoReplyOnce",
+    replyMessage: "",
+  });
 
   useEffect(() => {
     dispatch(fetchOutreachById(id));
     dispatch(fetchOutreachAnalytics(id));
+    dispatch(fetchProducts());
   }, [dispatch, id]);
+
+  // Initialize form data when outreach data is loaded
+  useEffect(() => {
+    if (currentOutreach) {
+      setFormData({
+        subreddits: currentOutreach.subreddits || [],
+        productId: currentOutreach.productId?.toString() || "",
+        dateRange: {
+          startDate: currentOutreach.dateRange?.startDate || "",
+          endDate: currentOutreach.dateRange?.endDate || "",
+        },
+        maxPosts: currentOutreach.maxPosts || 50,
+        replyType: currentOutreach.replyType || "autoReplyOnce",
+        replyMessage: currentOutreach.replyMessage || "",
+      });
+    }
+  }, [currentOutreach]);
+
+  // Handle success after update
+  useEffect(() => {
+    if (success && isEditMode) {
+      setIsEditMode(false);
+      // Refresh data
+      dispatch(fetchOutreachById(id));
+    }
+  }, [success, isEditMode, dispatch, id]);
 
   const handleBack = () => {
     navigate("/outreaches");
+  };
+
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+    // Reset form errors when toggling edit mode
+    setFormErrors({});
+  };
+
+  // Form validation
+  const validateForm = () => {
+    const errors = {};
+
+    if (formData.subreddits.length === 0) {
+      errors.subreddits = "At least one subreddit is required";
+    }
+
+    if (!formData.productId) {
+      errors.productId = "Please select a product";
+    }
+
+    if (!formData.dateRange.startDate) {
+      errors["dateRange.startDate"] = "Start date is required";
+    }
+
+    if (!formData.dateRange.endDate) {
+      errors["dateRange.endDate"] = "End date is required";
+    }
+
+    if (formData.dateRange.startDate && formData.dateRange.endDate) {
+      const start = new Date(formData.dateRange.startDate);
+      const end = new Date(formData.dateRange.endDate);
+      if (start > end) {
+        errors["dateRange.endDate"] = "End date must be after start date";
+      }
+    }
+
+    if (!formData.maxPosts || formData.maxPosts <= 0) {
+      errors.maxPosts = "Maximum posts must be a positive number";
+    }
+
+    if (
+      formData.replyType === "manualReplyOnce" &&
+      !formData.replyMessage.trim()
+    ) {
+      errors.replyMessage = "Reply message is required for manual reply";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    // Find the selected product to include its name
+    const selectedProduct = products.find(
+      (p) => p.id.toString() === formData.productId.toString()
+    );
+
+    const outreachData = {
+      id: currentOutreach.id,
+      ...formData,
+      productId: Number.parseInt(formData.productId),
+      productName: selectedProduct ? selectedProduct.name : "Unknown Product",
+      status: currentOutreach.status,
+      createdAt: currentOutreach.createdAt,
+    };
+
+    dispatch(updateOutreach(outreachData));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Clear error for this field
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  const handleDateRangeChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      dateRange: {
+        ...prev.dateRange,
+        [name]: value,
+      },
+    }));
+
+    // Clear error for this field
+    if (formErrors[`dateRange.${name}`]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [`dateRange.${name}`]: undefined,
+      }));
+    }
+  };
+
+  const handleSubredditInputChange = (e) => {
+    setSubredditInput(e.target.value);
+  };
+
+  const handleSubredditKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addSubreddit();
+    }
+  };
+
+  const addSubreddit = () => {
+    const subreddit = subredditInput.trim();
+    if (subreddit && !formData.subreddits.includes(subreddit)) {
+      // Format subreddit to ensure it starts with r/
+      const formattedSubreddit = subreddit.startsWith("r/")
+        ? subreddit
+        : `r/${subreddit}`;
+      setFormData((prev) => ({
+        ...prev,
+        subreddits: [...prev.subreddits, formattedSubreddit],
+      }));
+      setSubredditInput("");
+
+      // Clear subreddits error if it exists
+      if (formErrors.subreddits) {
+        setFormErrors((prev) => ({
+          ...prev,
+          subreddits: undefined,
+        }));
+      }
+    }
+  };
+
+  const removeSubreddit = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      subreddits: prev.subreddits.filter((_, i) => i !== index),
+    }));
   };
 
   // Format date for display
@@ -176,7 +370,9 @@ const OutreachDetailPage = () => {
                 </svg>
               </button>
               <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate pb-2">
-                Outreach Campaign Details
+                {isEditMode
+                  ? "Edit Outreach Campaign"
+                  : "Outreach Campaign Details"}
               </h2>
             </div>
             <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
@@ -207,47 +403,439 @@ const OutreachDetailPage = () => {
               </div>
             </div>
           </div>
+          {!isEditMode && (
+            <div className="mt-4 flex md:mt-0">
+              <button
+                onClick={toggleEditMode}
+                className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
+              >
+                <svg
+                  className="-ml-1 mr-2 h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Edit Campaign
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`${
-                activeTab === "overview"
-                  ? "border-[#FF4500] text-[#FF4500]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab("analytics")}
-              className={`${
-                activeTab === "analytics"
-                  ? "border-[#FF4500] text-[#FF4500]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              Analytics
-            </button>
-            <button
-              onClick={() => setActiveTab("subreddits")}
-              className={`${
-                activeTab === "subreddits"
-                  ? "border-[#FF4500] text-[#FF4500]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            >
-              Subreddits
-            </button>
-          </nav>
-        </div>
+        {/* Tabs - Only show when not in edit mode */}
+        {!isEditMode && (
+          <div className="border-b border-gray-200 mb-6">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab("overview")}
+                className={`${
+                  activeTab === "overview"
+                    ? "border-[#FF4500] text-[#FF4500]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveTab("analytics")}
+                className={`${
+                  activeTab === "analytics"
+                    ? "border-[#FF4500] text-[#FF4500]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              >
+                Analytics
+              </button>
+              <button
+                onClick={() => setActiveTab("subreddits")}
+                className={`${
+                  activeTab === "subreddits"
+                    ? "border-[#FF4500] text-[#FF4500]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              >
+                Subreddits
+              </button>
+            </nav>
+          </div>
+        )}
 
-        {/* Content based on active tab */}
+        {/* Content based on active tab or edit mode */}
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          {activeTab === "overview" && (
+          {isEditMode ? (
+            /* Edit Form */
+            <form
+              onSubmit={handleSubmit}
+              className="px-4 py-5 sm:p-6 space-y-6"
+            >
+              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                {/* Subreddits Input */}
+                <div className="sm:col-span-6">
+                  <label
+                    htmlFor="subreddit-input"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Subreddits
+                  </label>
+                  <div>
+                    <div className="flex">
+                      <input
+                        type="text"
+                        id="subreddit-input"
+                        value={subredditInput}
+                        onChange={handleSubredditInputChange}
+                        onKeyDown={handleSubredditKeyDown}
+                        placeholder="Enter subreddit and press Enter (e.g., r/marketing)"
+                        className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
+                          formErrors.subreddits ? "border-red-300" : ""
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={addSubreddit}
+                        className="ml-3 inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {formErrors.subreddits && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {formErrors.subreddits}
+                      </p>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Enter subreddits you want to target (e.g., r/marketing).
+                  </p>
+
+                  {/* Subreddit Tags */}
+                  {formData.subreddits.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {formData.subreddits.map((subreddit, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800"
+                        >
+                          {subreddit}
+                          <button
+                            type="button"
+                            onClick={() => removeSubreddit(index)}
+                            className="ml-2 inline-flex text-blue-400 hover:text-blue-600 focus:outline-none"
+                          >
+                            <svg
+                              className="h-4 w-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Product Selection */}
+                <div className="sm:col-span-4">
+                  <label
+                    htmlFor="productId"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Product
+                  </label>
+                  <div>
+                    <select
+                      id="productId"
+                      name="productId"
+                      value={formData.productId}
+                      onChange={handleChange}
+                      className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
+                        formErrors.productId ? "border-red-300" : ""
+                      }`}
+                    >
+                      <option value="">Select a product</option>
+                      {products.map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </select>
+                    {formErrors.productId && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {formErrors.productId}
+                      </p>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Select the product you want to promote in these subreddits.
+                  </p>
+                </div>
+
+                {/* Date Range */}
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="startDate"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Start Date
+                  </label>
+                  <div>
+                    <input
+                      type="date"
+                      id="startDate"
+                      name="startDate"
+                      value={formData.dateRange.startDate}
+                      onChange={handleDateRangeChange}
+                      className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
+                        formErrors["dateRange.startDate"]
+                          ? "border-red-300"
+                          : ""
+                      }`}
+                    />
+                    {formErrors["dateRange.startDate"] && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {formErrors["dateRange.startDate"]}
+                      </p>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Target posts from this date.
+                  </p>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="endDate"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    End Date
+                  </label>
+                  <div>
+                    <input
+                      type="date"
+                      id="endDate"
+                      name="endDate"
+                      value={formData.dateRange.endDate}
+                      onChange={handleDateRangeChange}
+                      className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
+                        formErrors["dateRange.endDate"] ? "border-red-300" : ""
+                      }`}
+                    />
+                    {formErrors["dateRange.endDate"] && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {formErrors["dateRange.endDate"]}
+                      </p>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Target posts until this date.
+                  </p>
+                </div>
+
+                {/* Max Posts */}
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="maxPosts"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Maximum Posts
+                  </label>
+                  <div>
+                    <input
+                      type="number"
+                      id="maxPosts"
+                      name="maxPosts"
+                      min="1"
+                      value={formData.maxPosts}
+                      onChange={handleChange}
+                      className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
+                        formErrors.maxPosts ? "border-red-300" : ""
+                      }`}
+                    />
+                    {formErrors.maxPosts && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {formErrors.maxPosts}
+                      </p>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Maximum number of posts to process.
+                  </p>
+                </div>
+
+                {/* Reply Type */}
+                <div className="sm:col-span-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Reply Type
+                  </label>
+                  <div className="space-y-5">
+                    <div className="relative flex items-start">
+                      <div className="flex items-center h-5">
+                        <input
+                          id="autoReplyOnce"
+                          name="replyType"
+                          type="radio"
+                          value="autoReplyOnce"
+                          checked={formData.replyType === "autoReplyOnce"}
+                          onChange={handleChange}
+                          className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+                        />
+                      </div>
+                      <div className="ml-3 text-sm">
+                        <label
+                          htmlFor="autoReplyOnce"
+                          className="font-medium text-gray-700"
+                        >
+                          Auto Reply Once
+                        </label>
+                        <p className="text-gray-500">
+                          The bot will reply once using a predefined template
+                          message.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="relative flex items-start">
+                      <div className="flex items-center h-5">
+                        <input
+                          id="manualReplyOnce"
+                          name="replyType"
+                          type="radio"
+                          value="manualReplyOnce"
+                          checked={formData.replyType === "manualReplyOnce"}
+                          onChange={handleChange}
+                          className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+                        />
+                      </div>
+                      <div className="ml-3 text-sm">
+                        <label
+                          htmlFor="manualReplyOnce"
+                          className="font-medium text-gray-700"
+                        >
+                          Manual Reply Once
+                        </label>
+                        <p className="text-gray-500">
+                          You will provide a custom message to reply once.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="relative flex items-start">
+                      <div className="flex items-center h-5">
+                        <input
+                          id="autoReplyComplete"
+                          name="replyType"
+                          type="radio"
+                          value="autoReplyComplete"
+                          checked={formData.replyType === "autoReplyComplete"}
+                          onChange={handleChange}
+                          className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+                        />
+                      </div>
+                      <div className="ml-3 text-sm">
+                        <label
+                          htmlFor="autoReplyComplete"
+                          className="font-medium text-gray-700"
+                        >
+                          Auto Reply Complete
+                        </label>
+                        <p className="text-gray-500">
+                          The bot will continuously reply to the potential
+                          client.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Manual Reply Message */}
+                {formData.replyType === "manualReplyOnce" && (
+                  <div className="sm:col-span-6">
+                    <label
+                      htmlFor="replyMessage"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Reply Message
+                    </label>
+                    <div>
+                      <textarea
+                        id="replyMessage"
+                        name="replyMessage"
+                        rows={4}
+                        value={formData.replyMessage}
+                        onChange={handleChange}
+                        placeholder="Enter your custom reply message here..."
+                        className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
+                          formErrors.replyMessage ? "border-red-300" : ""
+                        }`}
+                      />
+                      {formErrors.replyMessage && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {formErrors.replyMessage}
+                        </p>
+                      )}
+                    </div>
+                    <p className="mt-2 text-sm text-gray-500">
+                      This message will be sent as a reply to posts matching
+                      your criteria.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-5 border-t border-gray-200">
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={toggleEditMode}
+                    className="bg-white py-2.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <span className="flex items-center">
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Saving...
+                      </span>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+          ) : activeTab === "overview" ? (
             <div>
               <div className="px-4 py-5 sm:px-6">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -388,18 +976,10 @@ const OutreachDetailPage = () => {
                   >
                     View Conversations
                   </Link>
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
-                  >
-                    Edit Campaign
-                  </button>
                 </div>
               </div>
             </div>
-          )}
-
-          {activeTab === "analytics" && analytics && (
+          ) : activeTab === "analytics" && analytics ? (
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-6">
                 Performance Analytics
@@ -595,9 +1175,7 @@ const OutreachDetailPage = () => {
                 </div>
               </div>
             </div>
-          )}
-
-          {activeTab === "subreddits" && analytics && (
+          ) : activeTab === "subreddits" && analytics ? (
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-6">
                 Subreddit Performance
@@ -704,6 +1282,10 @@ const OutreachDetailPage = () => {
                   </table>
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="px-4 py-5 sm:px-6 text-center">
+              <p className="text-gray-500">No data available</p>
             </div>
           )}
         </div>
