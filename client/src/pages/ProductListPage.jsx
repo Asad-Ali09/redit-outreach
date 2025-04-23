@@ -1,52 +1,57 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Link, useNavigate } from "react-router-dom"
-import { fetchProducts, deleteProduct, clearProductError, clearProductSuccess } from "../redux/slices/productSlice"
-import { motion, AnimatePresence } from "framer-motion"
-import ProductCard from "./ProductCard"
-import DeleteConfirmationModal from "./DeleteConfirmationModal"
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  fetchProducts,
+  deleteProduct,
+  clearProductError,
+  clearProductSuccess,
+} from "../redux/slices/productSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import ProductCard from "../components/ProductCard";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 
 const ProductListPage = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { products, loading, error, success } = useSelector((state) => state.products)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { products, loading, error, success } = useSelector(
+    (state) => state.products
+  );
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [productToDelete, setProductToDelete] = useState(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchProducts())
+    dispatch(fetchProducts());
 
     // Clear any previous errors or success messages
     return () => {
-      dispatch(clearProductError())
-      dispatch(clearProductSuccess())
-    }
-  }, [dispatch])
+      dispatch(clearProductError());
+      dispatch(clearProductSuccess());
+    };
+  }, [dispatch]);
 
   const handleEditProduct = (productId) => {
-    navigate(`/products/${productId}`)
-  }
+    navigate(`/products/${productId}`);
+  };
 
   const handleDeleteClick = (product) => {
-    setProductToDelete(product)
-    setIsDeleteModalOpen(true)
-  }
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
 
   const confirmDelete = () => {
     if (productToDelete) {
-      dispatch(deleteProduct(productToDelete.id))
-      setIsDeleteModalOpen(false)
-      setProductToDelete(null)
+      dispatch(deleteProduct(productToDelete.id));
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
     }
-  }
+  };
 
   const cancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setProductToDelete(null)
-  }
+    setIsDeleteModalOpen(false);
+    setProductToDelete(null);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -56,7 +61,7 @@ const ProductListPage = () => {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -104,7 +109,14 @@ const ProductListPage = () => {
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
             <path
               className="opacity-75"
               fill="currentColor"
@@ -128,8 +140,12 @@ const ProductListPage = () => {
               d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No products</h3>
-          <p className="mt-1 text-sm text-gray-500">Get started by creating a new product.</p>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            No products
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Get started by creating a new product.
+          </p>
           <div className="mt-6">
             <Link
               to="/products/new"
@@ -180,7 +196,7 @@ const ProductListPage = () => {
         message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
       />
     </div>
-  )
-}
+  );
+};
 
-export default ProductListPage
+export default ProductListPage;

@@ -1,63 +1,54 @@
-"use client"
-
-import { useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   fetchProductById,
   resetCurrentProduct,
   clearProductError,
   clearProductSuccess,
-} from "../redux/slices/productSlice"
-import { motion } from "framer-motion"
-import ProductForm from "./ProductForm"
+} from "../redux/slices/productSlice";
+import { motion } from "framer-motion";
+import ProductForm from "../components/ProductForm";
 
 const ProductEditPage = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { currentProduct, loading, error } = useSelector((state) => state.products)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { currentProduct, loading, error } = useSelector(
+    (state) => state.products
+  );
 
-  const isNewProduct = id === "new"
+  const isNewProduct = id === "new";
 
   useEffect(() => {
     // Clear any previous product data when component mounts
-    dispatch(clearProductError())
-    dispatch(clearProductSuccess())
+    dispatch(clearProductError());
+    dispatch(clearProductSuccess());
 
     if (!isNewProduct) {
-      dispatch(fetchProductById(id))
+      dispatch(fetchProductById(id));
     } else {
-      dispatch(resetCurrentProduct())
+      dispatch(resetCurrentProduct());
     }
 
     // Clean up when component unmounts
     return () => {
-      dispatch(resetCurrentProduct())
-    }
-  }, [dispatch, id, isNewProduct])
-
-  const handleCancel = () => {
-    navigate("/products")
-  }
+      dispatch(resetCurrentProduct());
+    };
+  }, [dispatch, id, isNewProduct]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="md:flex md:items-center md:justify-between mb-6">
           <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
               {isNewProduct ? "Add New Product" : "Edit Product"}
             </h2>
-          </div>
-          <div className="mt-4 flex md:mt-0 md:ml-4">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
-            >
-              Cancel
-            </button>
           </div>
         </div>
 
@@ -82,7 +73,14 @@ const ProductEditPage = () => {
               fill="none"
               viewBox="0 0 24 24"
             >
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
               <path
                 className="opacity-75"
                 fill="currentColor"
@@ -95,7 +93,7 @@ const ProductEditPage = () => {
         )}
       </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductEditPage
+export default ProductEditPage;

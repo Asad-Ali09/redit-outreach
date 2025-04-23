@@ -1,25 +1,32 @@
-"use client"
+"use client";
 
-import { Link } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux"
-import { logout } from "../redux/slices/authSlice"
-import { motion } from "framer-motion"
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../redux/slices/authSlice";
+import { motion } from "framer-motion";
 
 const NavigationBar = () => {
-  const dispatch = useDispatch()
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
-    dispatch(logout())
-  }
+    dispatch(logout());
+  };
 
   return (
-    <motion.nav className="bg-white shadow-md" initial={{ y: -50 }} animate={{ y: 0 }} transition={{ duration: 0.3 }}>
+    <motion.nav
+      className="bg-white shadow-md z-10"
+      initial={{ y: -50 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-[#FF4500] font-bold text-xl">Reddit Outreach</span>
+              <span className="text-[#FF4500] font-bold text-xl">
+                Reddit Outreach
+              </span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
@@ -51,7 +58,11 @@ const NavigationBar = () => {
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-700">{user?.username}</span>
                 {user?.avatar && (
-                  <img className="h-8 w-8 rounded-full" src={user.avatar || "/placeholder.svg"} alt="User avatar" />
+                  <img
+                    className="h-8 w-8 rounded-full"
+                    src={user.avatar || "/placeholder.svg"}
+                    alt="User avatar"
+                  />
                 )}
                 <button
                   onClick={handleLogout}
@@ -82,7 +93,12 @@ const NavigationBar = () => {
                 stroke="currentColor"
                 aria-hidden="true"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>
@@ -120,11 +136,17 @@ const NavigationBar = () => {
             <div className="flex items-center px-4">
               {user?.avatar && (
                 <div className="flex-shrink-0">
-                  <img className="h-10 w-10 rounded-full" src={user.avatar || "/placeholder.svg"} alt="User avatar" />
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={user.avatar || "/placeholder.svg"}
+                    alt="User avatar"
+                  />
                 </div>
               )}
               <div className="ml-3">
-                <div className="text-base font-medium text-gray-800">{user?.username}</div>
+                <div className="text-base font-medium text-gray-800">
+                  {user?.username}
+                </div>
               </div>
               <button
                 onClick={handleLogout}
@@ -146,7 +168,7 @@ const NavigationBar = () => {
         </div>
       </div>
     </motion.nav>
-  )
-}
+  );
+};
 
-export default NavigationBar
+export default NavigationBar;

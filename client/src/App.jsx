@@ -1,27 +1,32 @@
-"use client"
+"use client";
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
-import { useSelector } from "react-redux"
-import NavigationBar from "./components/NavigationBar"
-import Footer from "./components/Footer"
-import LoginPage from "./components/LoginPage"
-import LandingPage from "./components/LandingPage"
-import ProductListPage from "./components/ProductListPage"
-import ProductEditPage from "./components/ProductEditPage"
-import OutreachListPage from "./components/OutreachListPage"
-import OutreachCreatePage from "./components/OutreachCreatePage"
-import { AnimatePresence } from "framer-motion"
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useSelector } from "react-redux";
+import NavigationBar from "./components/NavigationBar";
+import Footer from "./components/Footer";
+import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
+import ProductListPage from "./pages/ProductListPage";
+import ProductEditPage from "./pages/ProductEditPage";
+import OutreachListPage from "./pages/OutreachListPage";
+import OutreachCreatePage from "./pages/OutreachCreatePage";
+import { AnimatePresence } from "framer-motion";
 
 // PrivateRoute component to protect routes that require authentication
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth)
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
 
-  return children
-}
+  return children;
+};
 
 function App() {
   return (
@@ -71,7 +76,7 @@ function App() {
         <Footer />
       </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

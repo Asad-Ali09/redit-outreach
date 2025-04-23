@@ -1,11 +1,9 @@
-"use client"
-
-import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
-import { useSelector } from "react-redux"
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
 
 const LandingPage = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth)
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -15,7 +13,7 @@ const LandingPage = () => {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -26,13 +24,13 @@ const LandingPage = () => {
         duration: 0.5,
       },
     },
-  }
+  };
 
   return (
     <div className="bg-white">
       {/* Hero section */}
       <div className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl lg:w-1/2 ms-5">
           <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
             <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
               <motion.div
@@ -45,17 +43,26 @@ const LandingPage = () => {
                   className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl"
                   variants={itemVariants}
                 >
-                  <span className="block xl:inline">Boost your business with</span>{" "}
-                  <span className="block text-[#FF4500] xl:inline">Reddit Outreach</span>
+                  <span className="block xl:inline">
+                    Boost your business with
+                  </span>{" "}
+                  <span className="block text-[#FF4500] xl:inline">
+                    Reddit Outreach
+                  </span>
                 </motion.h1>
                 <motion.p
                   className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0"
                   variants={itemVariants}
                 >
-                  Connect with your target audience on Reddit. Our platform helps you manage your outreach campaigns,
-                  track engagement, and grow your business through one of the internet's most active communities.
+                  Connect with your target audience on Reddit. Our platform
+                  helps you manage your outreach campaigns, track engagement,
+                  and grow your business through one of the internet's most
+                  active communities.
                 </motion.p>
-                <motion.div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start" variants={itemVariants}>
+                <motion.div
+                  className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start"
+                  variants={itemVariants}
+                >
                   <div className="rounded-md shadow">
                     <Link
                       to={isAuthenticated ? "/products" : "/login"}
@@ -96,7 +103,9 @@ const LandingPage = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-base text-[#FF4500] font-semibold tracking-wide uppercase">Features</h2>
+            <h2 className="text-base text-[#FF4500] font-semibold tracking-wide uppercase">
+              Features
+            </h2>
             <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               Everything you need for Reddit marketing
             </p>
@@ -134,10 +143,12 @@ const LandingPage = () => {
                         </svg>
                       </span>
                     </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Product Management</h3>
+                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">
+                      Product Management
+                    </h3>
                     <p className="mt-5 text-base text-gray-500">
-                      Easily manage your products and services that you want to promote on Reddit. Add details, images,
-                      and links.
+                      Easily manage your products and services that you want to
+                      promote on Reddit. Add details, images, and links.
                     </p>
                   </div>
                 </div>
@@ -170,10 +181,12 @@ const LandingPage = () => {
                         </svg>
                       </span>
                     </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Targeted Outreach</h3>
+                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">
+                      Targeted Outreach
+                    </h3>
                     <p className="mt-5 text-base text-gray-500">
-                      Create targeted outreach campaigns for specific subreddits. Reach the right audience for your
-                      products.
+                      Create targeted outreach campaigns for specific
+                      subreddits. Reach the right audience for your products.
                     </p>
                   </div>
                 </div>
@@ -206,10 +219,12 @@ const LandingPage = () => {
                         </svg>
                       </span>
                     </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Analytics & Tracking</h3>
+                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">
+                      Analytics & Tracking
+                    </h3>
                     <p className="mt-5 text-base text-gray-500">
-                      Track the performance of your outreach campaigns. See engagement metrics and optimize your
-                      strategy.
+                      Track the performance of your outreach campaigns. See
+                      engagement metrics and optimize your strategy.
                     </p>
                   </div>
                 </div>
@@ -219,7 +234,7 @@ const LandingPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LandingPage
+export default LandingPage;

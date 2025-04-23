@@ -1,52 +1,52 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Link } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   fetchOutreaches,
   deleteOutreach,
   clearOutreachError,
   clearOutreachSuccess,
-} from "../redux/slices/outreachSlice"
-import { motion, AnimatePresence } from "framer-motion"
-import OutreachCard from "./OutreachCard"
-import DeleteConfirmationModal from "./DeleteConfirmationModal"
+} from "../redux/slices/outreachSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import OutreachCard from "../components/OutreachCard";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 
 const OutreachListPage = () => {
-  const dispatch = useDispatch()
-  const { outreaches, loading, error, success } = useSelector((state) => state.outreaches)
+  const dispatch = useDispatch();
+  const { outreaches, loading, error, success } = useSelector(
+    (state) => state.outreaches
+  );
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [outreachToDelete, setOutreachToDelete] = useState(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [outreachToDelete, setOutreachToDelete] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchOutreaches())
+    dispatch(fetchOutreaches());
 
     // Clear any previous errors or success messages
     return () => {
-      dispatch(clearOutreachError())
-      dispatch(clearOutreachSuccess())
-    }
-  }, [dispatch])
+      dispatch(clearOutreachError());
+      dispatch(clearOutreachSuccess());
+    };
+  }, [dispatch]);
 
   const handleDeleteClick = (outreach) => {
-    setOutreachToDelete(outreach)
-    setIsDeleteModalOpen(true)
-  }
+    setOutreachToDelete(outreach);
+    setIsDeleteModalOpen(true);
+  };
 
   const confirmDelete = () => {
     if (outreachToDelete) {
-      dispatch(deleteOutreach(outreachToDelete.id))
-      setIsDeleteModalOpen(false)
-      setOutreachToDelete(null)
+      dispatch(deleteOutreach(outreachToDelete.id));
+      setIsDeleteModalOpen(false);
+      setOutreachToDelete(null);
     }
-  }
+  };
 
   const cancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setOutreachToDelete(null)
-  }
+    setIsDeleteModalOpen(false);
+    setOutreachToDelete(null);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -56,12 +56,14 @@ const OutreachListPage = () => {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Your Outreach Campaigns</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Your Outreach Campaigns
+        </h1>
         <Link
           to="/outreaches/create"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
@@ -104,7 +106,14 @@ const OutreachListPage = () => {
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
             <path
               className="opacity-75"
               fill="currentColor"
@@ -128,8 +137,12 @@ const OutreachListPage = () => {
               d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No outreach campaigns</h3>
-          <p className="mt-1 text-sm text-gray-500">Get started by creating a new outreach campaign.</p>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            No outreach campaigns
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Get started by creating a new outreach campaign.
+          </p>
           <div className="mt-6">
             <Link
               to="/outreaches/create"
@@ -161,7 +174,11 @@ const OutreachListPage = () => {
         >
           <AnimatePresence>
             {outreaches.map((outreach) => (
-              <OutreachCard key={outreach.id} outreach={outreach} onDelete={() => handleDeleteClick(outreach)} />
+              <OutreachCard
+                key={outreach.id}
+                outreach={outreach}
+                onDelete={() => handleDeleteClick(outreach)}
+              />
             ))}
           </AnimatePresence>
         </motion.div>
@@ -175,7 +192,7 @@ const OutreachListPage = () => {
         message={`Are you sure you want to delete the outreach campaign for "${outreachToDelete?.subreddit}"? This action cannot be undone.`}
       />
     </div>
-  )
-}
+  );
+};
 
-export default OutreachListPage
+export default OutreachListPage;

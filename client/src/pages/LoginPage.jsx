@@ -1,32 +1,32 @@
-"use client"
-
-import { useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { useNavigate } from "react-router-dom"
-import { authenticateWithReddit, clearError } from "../redux/slices/authSlice"
-import { motion } from "framer-motion"
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { authenticateWithReddit, clearError } from "../redux/slices/authSlice";
+import { motion } from "framer-motion";
 
 const LoginPage = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { isAuthenticated, loading, error } = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated, loading, error } = useSelector(
+    (state) => state.auth
+  );
 
   useEffect(() => {
     // If already authenticated, redirect to products page
     if (isAuthenticated) {
-      navigate("/products")
+      navigate("/products");
     }
 
     // Clear any previous errors
-    dispatch(clearError())
-  }, [isAuthenticated, navigate, dispatch])
+    dispatch(clearError());
+  }, [isAuthenticated, navigate, dispatch]);
 
   const handleRedditLogin = () => {
-    dispatch(authenticateWithReddit())
-  }
+    dispatch(authenticateWithReddit());
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex h-[60vh] items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
         className="max-w-md w-full space-y-8"
         initial={{ opacity: 0, y: 20 }}
@@ -34,15 +34,21 @@ const LoginPage = () => {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">Connect with your Reddit account to get started</p>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Connect with your Reddit account to get started
+          </p>
         </div>
         <div className="mt-8">
           {error && (
             <div className="rounded-md bg-red-50 p-4 mb-4">
               <div className="flex">
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">Authentication Error</h3>
+                  <h3 className="text-sm font-medium text-red-800">
+                    Authentication Error
+                  </h3>
                   <div className="mt-2 text-sm text-red-700">
                     <p>{error}</p>
                   </div>
@@ -66,7 +72,14 @@ const LoginPage = () => {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -77,7 +90,11 @@ const LoginPage = () => {
               </span>
             ) : (
               <span className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M10 0C4.477 0 0 4.477 0 10c0 5.523 4.477 10 10 10 5.523 0 10-4.477 10-10 0-5.523-4.477-10-10-10zm5.293 6.293L9 12.586l-2.293-2.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 10-1.414-1.414z"
@@ -91,7 +108,7 @@ const LoginPage = () => {
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;
