@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const OutreachCard = ({ outreach, onDelete }) => {
@@ -33,7 +34,7 @@ const OutreachCard = ({ outreach, onDelete }) => {
 
   return (
     <motion.div
-      className="bg-white overflow-hidden shadow rounded-lg"
+      className="bg-white overflow-hidden shadow rounded-lg flex flex-col justify-between"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -87,18 +88,26 @@ const OutreachCard = ({ outreach, onDelete }) => {
         </div>
       </div>
       <div className="bg-gray-50 px-4 py-4 sm:px-6 flex justify-between">
-        {outreach.subreddits && outreach.subreddits.length > 0 && (
-          <a
-            href={`https://reddit.com/${outreach.subreddits[0]}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#0079D3] hover:bg-[#006bb9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0079D3]"
+        <div className="flex space-x-2">
+          {outreach.subreddits && outreach.subreddits.length > 0 && (
+            <a
+              href={`https://reddit.com/${outreach.subreddits[0]}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#0079D3] hover:bg-[#006bb9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0079D3]"
+            >
+              Visit Subreddit
+            </a>
+          )}
+          <Link
+            to={`/outreaches/${outreach.id}`}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
           >
-            Visit Subreddit
-          </a>
-        )}
+            View Details
+          </Link>
+        </div>
         <button
-          onClick={onDelete}
+          onClick={() => onDelete(outreach)}
           className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
           Delete

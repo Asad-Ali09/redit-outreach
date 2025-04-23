@@ -48,6 +48,78 @@ const mockOutreaches = [
   },
 ];
 
+// Mock analytics data
+const mockAnalytics = {
+  totalPosts: 325,
+  totalReplies: 87,
+  responseRate: 26.8,
+  conversionRate: 8.3,
+  dailyEngagement: [
+    { date: "May 1", views: 45, replies: 12, clicks: 8 },
+    { date: "May 2", views: 52, replies: 15, clicks: 10 },
+    { date: "May 3", views: 48, replies: 10, clicks: 7 },
+    { date: "May 4", views: 60, replies: 18, clicks: 12 },
+    { date: "May 5", views: 55, replies: 14, clicks: 9 },
+    { date: "May 6", views: 65, replies: 18, clicks: 11 },
+  ],
+  engagementDistribution: [
+    { name: "Views Only", value: 238 },
+    { name: "Replied", value: 87 },
+    { name: "Clicked Link", value: 47 },
+    { name: "Converted", value: 27 },
+  ],
+  conversionFunnel: [
+    { name: "Views", value: 325 },
+    { name: "Replies", value: 87 },
+    { name: "Clicks", value: 47 },
+    { name: "Leads", value: 32 },
+    { name: "Conversions", value: 27 },
+  ],
+  keyMetrics: [
+    { name: "Average Response Time", value: "2.4 hours", change: 5 },
+    { name: "Click-through Rate", value: "14.5%", change: 2.3 },
+    { name: "Cost per Lead", value: "$4.25", change: -8.2 },
+    { name: "ROI", value: "215%", change: 12.7 },
+    { name: "Engagement Score", value: "7.8/10", change: 0.5 },
+  ],
+  subredditPerformance: [
+    { name: "r/marketing", views: 120, replies: 35, conversions: 12 },
+    { name: "r/smallbusiness", views: 85, replies: 28, conversions: 9 },
+    { name: "r/entrepreneur", views: 65, replies: 15, conversions: 4 },
+    { name: "r/startups", views: 55, replies: 9, conversions: 2 },
+  ],
+  subredditDetails: [
+    {
+      name: "r/marketing",
+      posts: 45,
+      replies: 35,
+      responseRate: 77.8,
+      conversionRate: 34.3,
+    },
+    {
+      name: "r/smallbusiness",
+      posts: 38,
+      replies: 28,
+      responseRate: 73.7,
+      conversionRate: 32.1,
+    },
+    {
+      name: "r/entrepreneur",
+      posts: 32,
+      replies: 15,
+      responseRate: 46.9,
+      conversionRate: 26.7,
+    },
+    {
+      name: "r/startups",
+      posts: 25,
+      replies: 9,
+      responseRate: 36.0,
+      conversionRate: 22.2,
+    },
+  ],
+};
+
 // Async thunks for outreach CRUD operations
 export const fetchOutreaches = createAsyncThunk(
   "outreaches/fetchOutreaches",
@@ -75,6 +147,22 @@ export const fetchOutreachById = createAsyncThunk(
       }
 
       return outreach;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchOutreachAnalytics = createAsyncThunk(
+  "outreaches/fetchOutreachAnalytics",
+  async (id, { rejectWithValue }) => {
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 700));
+
+      // In a real app, we would fetch analytics specific to this outreach
+      // For now, return mock analytics data
+      return mockAnalytics;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -134,6 +222,7 @@ export const deleteOutreach = createAsyncThunk(
 const initialState = {
   outreaches: [],
   currentOutreach: null,
+  analytics: null,
   loading: false,
   error: null,
   success: false,
@@ -181,6 +270,20 @@ const outreachSlice = createSlice({
       .addCase(fetchOutreachById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to fetch outreach";
+      })
+
+      // Fetch outreach analytics
+      .addCase(fetchOutreachAnalytics.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOutreachAnalytics.fulfilled, (state, action) => {
+        state.loading = false;
+        state.analytics = action.payload;
+      })
+      .addCase(fetchOutreachAnalytics.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch analytics";
       })
 
       // Create outreach

@@ -15,7 +15,10 @@ import ProductListPage from "./pages/ProductListPage";
 import ProductEditPage from "./pages/ProductEditPage";
 import OutreachListPage from "./pages/OutreachListPage";
 import OutreachCreatePage from "./pages/OutreachCreatePage";
+import ChatPage from "./pages/ChatPage";
+import ChatNotificationBadge from "./components/ChatNotificationBadge";
 import { AnimatePresence } from "framer-motion";
+import OutreachDetailPage from "./pages/OutreachDetailPage";
 
 // PrivateRoute component to protect routes that require authentication
 const PrivateRoute = ({ children }) => {
@@ -29,6 +32,8 @@ const PrivateRoute = ({ children }) => {
 };
 
 function App() {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
   return (
     <Router>
       <div className="flex flex-col min-h-screen bg-gray-50">
@@ -70,10 +75,27 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/outreaches/:id"
+                element={
+                  <PrivateRoute>
+                    <OutreachDetailPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/chat"
+                element={
+                  <PrivateRoute>
+                    <ChatPage />
+                  </PrivateRoute>
+                }
+              />
             </Routes>
           </AnimatePresence>
         </main>
         <Footer />
+        {isAuthenticated && <ChatNotificationBadge />}
       </div>
     </Router>
   );

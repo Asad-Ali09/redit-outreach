@@ -140,27 +140,29 @@ const ProductForm = ({ product, isNew }) => {
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="space-y-6 bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6"
+      className="space-y-8 bg-white shadow px-6 py-6 sm:rounded-lg"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+      <div className="grid grid-cols-1 gap-y-8 gap-x-6 sm:grid-cols-6">
+        {/* Product Name */}
         <div className="sm:col-span-4">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Product Name
           </label>
-          <div className="mt-1">
+          <div>
             <input
+              placeholder="Enter product name"
               type="text"
               name="name"
               id="name"
               value={formData.name}
               onChange={handleChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors.name ? "border-red-300" : ""
               }`}
             />
@@ -170,21 +172,23 @@ const ProductForm = ({ product, isNew }) => {
           </div>
         </div>
 
+        {/* Description */}
         <div className="sm:col-span-6">
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Description
           </label>
-          <div className="mt-1">
+          <div>
             <textarea
+              placeholder="Enter description"
               id="description"
               name="description"
               rows={3}
               value={formData.description}
               onChange={handleChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors.description ? "border-red-300" : ""
               }`}
             />
@@ -197,14 +201,15 @@ const ProductForm = ({ product, isNew }) => {
           </p>
         </div>
 
+        {/* Keywords */}
         <div className="sm:col-span-4">
           <label
             htmlFor="keyword"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Keywords
           </label>
-          <div className="mt-1">
+          <div>
             <input
               type="text"
               name="keyword"
@@ -212,7 +217,7 @@ const ProductForm = ({ product, isNew }) => {
               value={formData.keyword}
               onChange={handleChange}
               placeholder="marketing, sales, technology"
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors.keyword ? "border-red-300" : ""
               }`}
             />
@@ -225,14 +230,15 @@ const ProductForm = ({ product, isNew }) => {
           </p>
         </div>
 
+        {/* Domain */}
         <div className="sm:col-span-4">
           <label
             htmlFor="domain"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Domain
           </label>
-          <div className="mt-1">
+          <div>
             <input
               type="text"
               name="domain"
@@ -240,7 +246,7 @@ const ProductForm = ({ product, isNew }) => {
               value={formData.domain}
               onChange={handleChange}
               placeholder="ecommerce, saas, healthcare"
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors.domain ? "border-red-300" : ""
               }`}
             />
@@ -250,20 +256,21 @@ const ProductForm = ({ product, isNew }) => {
           </div>
         </div>
 
+        {/* Location - City */}
         <div className="sm:col-span-3">
           <label
             htmlFor="city"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             City
           </label>
-          <div className="mt-1">
+          <div>
             <select
               id="city"
               name="city"
               value={formData.location.city}
               onChange={handleLocationChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors["location.city"] ? "border-red-300" : ""
               }`}
             >
@@ -285,20 +292,21 @@ const ProductForm = ({ product, isNew }) => {
           </div>
         </div>
 
+        {/* Location - Country */}
         <div className="sm:col-span-3">
           <label
             htmlFor="country"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Country
           </label>
-          <div className="mt-1">
+          <div>
             <select
               id="country"
               name="country"
               value={formData.location.country}
               onChange={handleLocationChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors["location.country"] ? "border-red-300" : ""
               }`}
             >
@@ -321,14 +329,15 @@ const ProductForm = ({ product, isNew }) => {
           </div>
         </div>
 
+        {/* Price */}
         <div className="sm:col-span-2">
           <label
             htmlFor="price"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Price
           </label>
-          <div className="mt-1 relative rounded-md shadow-sm">
+          <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <span className="text-gray-500 sm:text-sm">$</span>
             </div>
@@ -338,7 +347,7 @@ const ProductForm = ({ product, isNew }) => {
               id="price"
               value={formData.price}
               onChange={handleChange}
-              className={`focus:ring-[#FF4500] focus:border-[#FF4500] block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md ${
+              className={`focus:ring-[#FF4500] focus:border-[#FF4500] block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors.price ? "border-red-300" : ""
               }`}
               placeholder="0.00"
@@ -356,19 +365,19 @@ const ProductForm = ({ product, isNew }) => {
         </div>
       </div>
 
-      <div className="pt-5">
-        <div className="flex justify-end">
+      <div className="pt-5 border-t border-gray-200">
+        <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={() => navigate("/products")}
-            className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
+            className="bg-white py-2.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <span className="flex items-center">

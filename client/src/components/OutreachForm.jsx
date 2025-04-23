@@ -175,21 +175,21 @@ const OutreachForm = () => {
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="space-y-6 bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6"
+      className="space-y-8 bg-white shadow px-6 py-6 sm:rounded-lg"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+      <div className="grid grid-cols-1 gap-y-8 gap-x-6 sm:grid-cols-6">
         {/* Subreddits Input */}
         <div className="sm:col-span-6">
           <label
             htmlFor="subreddit-input"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Subreddits
           </label>
-          <div className="mt-1">
+          <div>
             <div className="flex">
               <input
                 type="text"
@@ -198,14 +198,14 @@ const OutreachForm = () => {
                 onChange={handleSubredditInputChange}
                 onKeyDown={handleSubredditKeyDown}
                 placeholder="Enter subreddit and press Enter (e.g., r/marketing)"
-                className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                   errors.subreddits ? "border-red-300" : ""
                 }`}
               />
               <button
                 type="button"
                 onClick={addSubreddit}
-                className="ml-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
+                className="ml-3 inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
               >
                 Add
               </button>
@@ -220,17 +220,17 @@ const OutreachForm = () => {
 
           {/* Subreddit Tags */}
           {formData.subreddits.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {formData.subreddits.map((subreddit, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800"
+                  className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800"
                 >
                   {subreddit}
                   <button
                     type="button"
                     onClick={() => removeSubreddit(index)}
-                    className="ml-1.5 inline-flex text-blue-400 hover:text-blue-600 focus:outline-none"
+                    className="ml-2 inline-flex text-blue-400 hover:text-blue-600 focus:outline-none"
                   >
                     <svg
                       className="h-4 w-4"
@@ -254,17 +254,17 @@ const OutreachForm = () => {
         <div className="sm:col-span-4">
           <label
             htmlFor="productId"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Product
           </label>
-          <div className="mt-1">
+          <div>
             <select
               id="productId"
               name="productId"
               value={formData.productId}
               onChange={handleChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors.productId ? "border-red-300" : ""
               }`}
             >
@@ -288,18 +288,18 @@ const OutreachForm = () => {
         <div className="sm:col-span-3">
           <label
             htmlFor="startDate"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Start Date
           </label>
-          <div className="mt-1">
+          <div>
             <input
               type="date"
               id="startDate"
               name="startDate"
               value={formData.dateRange.startDate}
               onChange={handleDateRangeChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors["dateRange.startDate"] ? "border-red-300" : ""
               }`}
             />
@@ -317,18 +317,18 @@ const OutreachForm = () => {
         <div className="sm:col-span-3">
           <label
             htmlFor="endDate"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             End Date
           </label>
-          <div className="mt-1">
+          <div>
             <input
               type="date"
               id="endDate"
               name="endDate"
               value={formData.dateRange.endDate}
               onChange={handleDateRangeChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors["dateRange.endDate"] ? "border-red-300" : ""
               }`}
             />
@@ -347,11 +347,11 @@ const OutreachForm = () => {
         <div className="sm:col-span-2">
           <label
             htmlFor="maxPosts"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
             Maximum Posts
           </label>
-          <div className="mt-1">
+          <div>
             <input
               type="number"
               id="maxPosts"
@@ -359,7 +359,7 @@ const OutreachForm = () => {
               min="1"
               value={formData.maxPosts}
               onChange={handleChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                 errors.maxPosts ? "border-red-300" : ""
               }`}
             />
@@ -373,72 +373,84 @@ const OutreachForm = () => {
         </div>
 
         {/* Reply Type */}
-        <div className="sm:col-span-4">
-          <label className="block text-sm font-medium text-gray-700">
+        <div className="sm:col-span-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
             Reply Type
           </label>
-          <div className="mt-2 space-y-4">
-            <div className="flex items-center">
-              <input
-                id="autoReplyOnce"
-                name="replyType"
-                type="radio"
-                value="autoReplyOnce"
-                checked={formData.replyType === "autoReplyOnce"}
-                onChange={handleChange}
-                className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
-              />
-              <label
-                htmlFor="autoReplyOnce"
-                className="ml-3 block text-sm font-medium text-gray-700"
-              >
-                Auto Reply Once
-                <p className="text-xs text-gray-500">
+          <div className="space-y-5">
+            <div className="relative flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="autoReplyOnce"
+                  name="replyType"
+                  type="radio"
+                  value="autoReplyOnce"
+                  checked={formData.replyType === "autoReplyOnce"}
+                  onChange={handleChange}
+                  className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label
+                  htmlFor="autoReplyOnce"
+                  className="font-medium text-gray-700"
+                >
+                  Auto Reply Once
+                </label>
+                <p className="text-gray-500">
                   The bot will reply once using a predefined template message.
                 </p>
-              </label>
+              </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                id="manualReplyOnce"
-                name="replyType"
-                type="radio"
-                value="manualReplyOnce"
-                checked={formData.replyType === "manualReplyOnce"}
-                onChange={handleChange}
-                className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
-              />
-              <label
-                htmlFor="manualReplyOnce"
-                className="ml-3 block text-sm font-medium text-gray-700"
-              >
-                Manual Reply Once
-                <p className="text-xs text-gray-500">
+            <div className="relative flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="manualReplyOnce"
+                  name="replyType"
+                  type="radio"
+                  value="manualReplyOnce"
+                  checked={formData.replyType === "manualReplyOnce"}
+                  onChange={handleChange}
+                  className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label
+                  htmlFor="manualReplyOnce"
+                  className="font-medium text-gray-700"
+                >
+                  Manual Reply Once
+                </label>
+                <p className="text-gray-500">
                   You will provide a custom message to reply once.
                 </p>
-              </label>
+              </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                id="autoReplyComplete"
-                name="replyType"
-                type="radio"
-                value="autoReplyComplete"
-                checked={formData.replyType === "autoReplyComplete"}
-                onChange={handleChange}
-                className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
-              />
-              <label
-                htmlFor="autoReplyComplete"
-                className="ml-3 block text-sm font-medium text-gray-700"
-              >
-                Auto Reply Complete
-                <p className="text-xs text-gray-500">
+            <div className="relative flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="autoReplyComplete"
+                  name="replyType"
+                  type="radio"
+                  value="autoReplyComplete"
+                  checked={formData.replyType === "autoReplyComplete"}
+                  onChange={handleChange}
+                  className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label
+                  htmlFor="autoReplyComplete"
+                  className="font-medium text-gray-700"
+                >
+                  Auto Reply Complete
+                </label>
+                <p className="text-gray-500">
                   The bot will continuously reply to the potential client.
                 </p>
-              </label>
+              </div>
             </div>
           </div>
         </div>
@@ -448,11 +460,11 @@ const OutreachForm = () => {
           <div className="sm:col-span-6">
             <label
               htmlFor="replyMessage"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
               Reply Message
             </label>
-            <div className="mt-1">
+            <div>
               <textarea
                 id="replyMessage"
                 name="replyMessage"
@@ -460,7 +472,7 @@ const OutreachForm = () => {
                 value={formData.replyMessage}
                 onChange={handleChange}
                 placeholder="Enter your custom reply message here..."
-                className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md ${
+                className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
                   errors.replyMessage ? "border-red-300" : ""
                 }`}
               />
@@ -478,19 +490,19 @@ const OutreachForm = () => {
         )}
       </div>
 
-      <div className="pt-5">
-        <div className="flex justify-end">
+      <div className="pt-5 border-t border-gray-200">
+        <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={() => navigate("/outreaches")}
-            className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
+            className="bg-white py-2.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500]"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <span className="flex items-center">

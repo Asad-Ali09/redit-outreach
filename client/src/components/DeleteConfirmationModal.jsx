@@ -1,19 +1,25 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-  const cancelButtonRef = useRef(null)
+const DeleteConfirmationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+}) => {
+  const cancelButtonRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       // Focus the cancel button when the modal opens
       setTimeout(() => {
-        cancelButtonRef.current?.focus()
-      }, 100)
+        cancelButtonRef.current?.focus();
+      }, 100);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -28,12 +34,15 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, title, message })
               onClick={onClose}
             />
 
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
               &#8203;
             </span>
 
             <motion.div
-              className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+              className="inline-block relative z-20 align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -59,7 +68,10 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, title, message })
                     </svg>
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                    <h3
+                      className="text-lg leading-6 font-medium text-gray-900"
+                      id="modal-title"
+                    >
                       {title}
                     </h3>
                     <div className="mt-2">
@@ -90,7 +102,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, title, message })
         </div>
       )}
     </AnimatePresence>
-  )
-}
+  );
+};
 
-export default DeleteConfirmationModal
+export default DeleteConfirmationModal;
