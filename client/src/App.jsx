@@ -1,5 +1,77 @@
-function App() {
-  return <></>;
+"use client"
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { useSelector } from "react-redux"
+import NavigationBar from "./components/NavigationBar"
+import Footer from "./components/Footer"
+import LoginPage from "./components/LoginPage"
+import LandingPage from "./components/LandingPage"
+import ProductListPage from "./components/ProductListPage"
+import ProductEditPage from "./components/ProductEditPage"
+import OutreachListPage from "./components/OutreachListPage"
+import OutreachCreatePage from "./components/OutreachCreatePage"
+import { AnimatePresence } from "framer-motion"
+
+// PrivateRoute component to protect routes that require authentication
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated } = useSelector((state) => state.auth)
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
 }
 
-export default App;
+function App() {
+  return (
+    <Router>
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <NavigationBar />
+        <main className="flex-grow">
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/products"
+                element={
+                  <PrivateRoute>
+                    <ProductListPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/products/:id"
+                element={
+                  <PrivateRoute>
+                    <ProductEditPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/outreaches"
+                element={
+                  <PrivateRoute>
+                    <OutreachListPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/outreaches/create"
+                element={
+                  <PrivateRoute>
+                    <OutreachCreatePage />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
+          </AnimatePresence>
+        </main>
+        <Footer />
+      </div>
+    </Router>
+  )
+}
+
+export default App
