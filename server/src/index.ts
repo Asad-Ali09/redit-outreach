@@ -1,13 +1,36 @@
 import express, { Express, Request, Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import session from "express-session";
 import { config } from "./config";
+import authRoutes from "./routes/auth.routes";
+import MongoStore from "connect-mongo";
+import { errorHandler, AppError } from "./middleware/error.middleware";
+
+declare module "express-session" {
+  interface SessionData {
+    oauthState?: string;
+    userId?: string;
+  }
+}
 
 const app: Express = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: config.mongodb.uri }),
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
 // MongoDB Connection
 mongoose
@@ -19,10 +42,21 @@ mongoose
     console.error("MongoDB connection error:", error);
   });
 
+// Routes
+app.use("/auth", authRoutes);
+
 // Basic route
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Welcome to Reddit Outreach API" });
 });
+
+// Not found route
+app.use((req: Request, res: Response, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+// Error handler
+app.use(errorHandler);
 
 // Start server
 app.listen(config.port, () => {

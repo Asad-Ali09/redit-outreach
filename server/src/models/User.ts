@@ -2,7 +2,10 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
   username: string;
-  email: string;
+  redditId: string;
+  redditAccessToken: string;
+  redditRefreshToken: string;
+  redditTokenExpiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,10 +17,21 @@ const UserSchema: Schema = new Schema(
       required: true,
       unique: true,
     },
-    email: {
+    redditId: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
+    },
+    redditAccessToken: {
+      type: String,
+      select: false, // Don't include in queries by default
+    },
+    redditRefreshToken: {
+      type: String,
+      select: false,
+    },
+    redditTokenExpiresAt: {
+      type: Date,
     },
   },
   {
