@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.routes";
 import MongoStore from "connect-mongo";
 import { errorHandler, AppError } from "./middleware/error.middleware";
 import productRoutes from "./routes/product.routes";
+import outreachRoutes from "./routes/outreach.routes";
 
 declare module "express-session" {
   interface SessionData {
@@ -46,6 +47,7 @@ mongoose
 // Routes
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
+app.use("/outreach", outreachRoutes);
 
 // Basic route
 app.get("/", (req: Request, res: Response) => {

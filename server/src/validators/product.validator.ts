@@ -1,6 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { body, validationResult } from "express-validator";
-import { AppError } from "./error.middleware";
+import { body } from "express-validator";
+import { handleValidationErrors } from "./validation.handler";
 
 export const validateProduct = [
   // Name validation
@@ -54,16 +53,9 @@ export const validateProduct = [
 
   // Price validation
   body("price")
+    .notEmpty()
+    .withMessage("Price is required")
     .isFloat({ min: 0 })
     .withMessage("Price must be a positive number"),
-
-  // Validation result handler
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const errorMessages = errors.array().map((err) => err.msg);
-      return next(new AppError(errorMessages.join(", "), 400));
-    }
-    next();
-  },
+  handleValidationErrors,
 ];

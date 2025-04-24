@@ -7,7 +7,7 @@ import {
   deleteProduct,
 } from "../controllers/product.controller";
 import { requireAuth } from "../middleware/auth.middleware";
-import { validateProduct } from "../middleware/product.validation";
+import { validateProduct } from "../validators/product.validator";
 
 const router = Router();
 
