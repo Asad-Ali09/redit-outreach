@@ -120,3 +120,24 @@ export const refreshRedditToken = async (userId: string) => {
     throw new Error("Failed to refresh token");
   }
 };
+
+export const devLogin = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findOne({ username: "Necessary-Chair731" });
+
+    if (!user) {
+      return res.status(404).json({ error: "No users found in the database" });
+    }
+
+    // Create session
+    req.session = req.session || {};
+    req.session.userId = user._id as string;
+
+    res
+      .status(200)
+      .json({ message: "Logged in as dev user", userId: user._id });
+  } catch (error) {
+    console.error("Dev login error:", error);
+    res.status(500).json({ error: "Dev login failed" });
+  }
+};
