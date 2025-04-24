@@ -7,6 +7,7 @@ import {
   fetchOutreachById,
   fetchOutreachAnalytics,
   updateOutreach,
+  clearOutreachSuccess,
 } from "../redux/slices/outreachSlice";
 import { fetchProducts } from "../redux/slices/productSlice";
 import { motion } from "framer-motion";
@@ -49,8 +50,8 @@ const OutreachDetailPage = () => {
       endDate: "",
     },
     maxPosts: 50,
-    replyType: "autoReplyOnce",
-    replyMessage: "",
+    replyType: "auto_reply_once",
+    replyTemplate: "",
   });
 
   useEffect(() => {
@@ -62,16 +63,17 @@ const OutreachDetailPage = () => {
   // Initialize form data when outreach data is loaded
   useEffect(() => {
     if (currentOutreach) {
+      console.log(currentOutreach);
       setFormData({
         subreddits: currentOutreach.subreddits || [],
-        productId: currentOutreach.productId?.toString() || "",
+        productId: currentOutreach.product.id || "",
         dateRange: {
-          startDate: currentOutreach.dateRange?.startDate || "",
-          endDate: currentOutreach.dateRange?.endDate || "",
+          startDate: currentOutreach.startDate || "",
+          endDate: currentOutreach.endDate || "",
         },
-        maxPosts: currentOutreach.maxPosts || 50,
-        replyType: currentOutreach.replyType || "autoReplyOnce",
-        replyMessage: currentOutreach.replyMessage || "",
+        maxPosts: currentOutreach.maxPosts || 60,
+        replyType: currentOutreach.replyType || "auto_reply_once",
+        replyTemplate: currentOutreach.replyTemplate || "",
       });
     }
   }, [currentOutreach]);
@@ -82,6 +84,7 @@ const OutreachDetailPage = () => {
       setIsEditMode(false);
       // Refresh data
       dispatch(fetchOutreachById(id));
+      dispatch(clearOutreachSuccess());
     }
   }, [success, isEditMode, dispatch, id]);
 
@@ -90,7 +93,7 @@ const OutreachDetailPage = () => {
   };
 
   const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
+    setIsEditMode((prev) => !prev);
     // Reset form errors when toggling edit mode
     setFormErrors({});
   };
@@ -128,10 +131,10 @@ const OutreachDetailPage = () => {
     }
 
     if (
-      formData.replyType === "manualReplyOnce" &&
-      !formData.replyMessage.trim()
+      formData.replyType === "manual_reply_once" &&
+      !formData.replyTemplate.trim()
     ) {
-      errors.replyMessage = "Reply message is required for manual reply";
+      errors.replyTemplate = "Reply message is required for manual reply";
     }
 
     setFormErrors(errors);
@@ -153,7 +156,7 @@ const OutreachDetailPage = () => {
     const outreachData = {
       id: currentOutreach.id,
       ...formData,
-      productId: Number.parseInt(formData.productId),
+      productId: formData.productId,
       productName: selectedProduct ? selectedProduct.name : "Unknown Product",
       status: currentOutreach.status,
       createdAt: currentOutreach.createdAt,
@@ -213,8 +216,8 @@ const OutreachDetailPage = () => {
     if (subreddit && !formData.subreddits.includes(subreddit)) {
       // Format subreddit to ensure it starts with r/
       const formattedSubreddit = subreddit.startsWith("r/")
-        ? subreddit
-        : `r/${subreddit}`;
+        ? subreddit.replace("r/", "")
+        : `${subreddit}`;
       setFormData((prev) => ({
         ...prev,
         subreddits: [...prev.subreddits, formattedSubreddit],
@@ -251,14 +254,13 @@ const OutreachDetailPage = () => {
     return product ? product.name : "Unknown Product";
   };
 
-  // Get reply type display text
   const getReplyTypeText = (replyType) => {
     switch (replyType) {
-      case "autoReplyOnce":
+      case "auto_reply_once":
         return "Auto Reply Once";
-      case "manualReplyOnce":
+      case "manual_reply_once":
         return "Manual Reply Once";
-      case "autoReplyComplete":
+      case "auto_reply_complete":
         return "Auto Reply Complete";
       default:
         return "Unknown";
@@ -376,7 +378,7 @@ const OutreachDetailPage = () => {
               </h2>
             </div>
             <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
-              <div className="mt-2 flex items-center text-sm text-gray-500">
+              {/* <div className="mt-2 flex items-center text-sm text-gray-500">
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
                     currentOutreach.status
@@ -385,7 +387,7 @@ const OutreachDetailPage = () => {
                   {currentOutreach.status.charAt(0).toUpperCase() +
                     currentOutreach.status.slice(1)}
                 </span>
-              </div>
+              </div> */}
               <div className="mt-2 flex items-center text-sm text-gray-500">
                 <svg
                   className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
@@ -679,18 +681,18 @@ const OutreachDetailPage = () => {
                     <div className="relative flex items-start">
                       <div className="flex items-center h-5">
                         <input
-                          id="autoReplyOnce"
+                          id="auto_reply_once"
                           name="replyType"
                           type="radio"
-                          value="autoReplyOnce"
-                          checked={formData.replyType === "autoReplyOnce"}
+                          value="auto_reply_once"
+                          checked={formData.replyType === "auto_reply_once"}
                           onChange={handleChange}
                           className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
                         />
                       </div>
                       <div className="ml-3 text-sm">
                         <label
-                          htmlFor="autoReplyOnce"
+                          htmlFor="auto_reply_once"
                           className="font-medium text-gray-700"
                         >
                           Auto Reply Once
@@ -705,18 +707,18 @@ const OutreachDetailPage = () => {
                     <div className="relative flex items-start">
                       <div className="flex items-center h-5">
                         <input
-                          id="manualReplyOnce"
+                          id="manual_reply_once"
                           name="replyType"
                           type="radio"
-                          value="manualReplyOnce"
-                          checked={formData.replyType === "manualReplyOnce"}
+                          value="manual_reply_once"
+                          checked={formData.replyType === "manual_reply_once"}
                           onChange={handleChange}
                           className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
                         />
                       </div>
                       <div className="ml-3 text-sm">
                         <label
-                          htmlFor="manualReplyOnce"
+                          htmlFor="manual_reply_once"
                           className="font-medium text-gray-700"
                         >
                           Manual Reply Once
@@ -730,18 +732,18 @@ const OutreachDetailPage = () => {
                     <div className="relative flex items-start">
                       <div className="flex items-center h-5">
                         <input
-                          id="autoReplyComplete"
+                          id="auto_reply_complete"
                           name="replyType"
                           type="radio"
-                          value="autoReplyComplete"
-                          checked={formData.replyType === "autoReplyComplete"}
+                          value="auto_reply_complete"
+                          checked={formData.replyType === "auto_reply_complete"}
                           onChange={handleChange}
                           className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
                         />
                       </div>
                       <div className="ml-3 text-sm">
                         <label
-                          htmlFor="autoReplyComplete"
+                          htmlFor="auto_reply_complete"
                           className="font-medium text-gray-700"
                         >
                           Auto Reply Complete
@@ -756,29 +758,29 @@ const OutreachDetailPage = () => {
                 </div>
 
                 {/* Manual Reply Message */}
-                {formData.replyType === "manualReplyOnce" && (
+                {formData.replyType === "manual_reply_once" && (
                   <div className="sm:col-span-6">
                     <label
-                      htmlFor="replyMessage"
+                      htmlFor="replyTemplate"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Reply Message
                     </label>
                     <div>
                       <textarea
-                        id="replyMessage"
-                        name="replyMessage"
+                        id="replyTemplate"
+                        name="replyTemplate"
                         rows={4}
-                        value={formData.replyMessage}
+                        value={formData.replyTemplate}
                         onChange={handleChange}
                         placeholder="Enter your custom reply message here..."
                         className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
-                          formErrors.replyMessage ? "border-red-300" : ""
+                          formErrors.replyTemplate ? "border-red-300" : ""
                         }`}
                       />
-                      {formErrors.replyMessage && (
+                      {formErrors.replyTemplate && (
                         <p className="mt-2 text-sm text-red-600">
-                          {formErrors.replyMessage}
+                          {formErrors.replyTemplate}
                         </p>
                       )}
                     </div>
@@ -852,7 +854,7 @@ const OutreachDetailPage = () => {
                       Product
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {getProductName(currentOutreach.productId)}
+                      {currentOutreach.product.name}
                     </dd>
                   </div>
                   <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -880,8 +882,7 @@ const OutreachDetailPage = () => {
                       Date Range
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {formatDate(currentOutreach.dateRange?.startDate)} to{" "}
-                      {formatDate(currentOutreach.dateRange?.endDate)}
+                      {currentOutreach?.startDate} to {currentOutreach?.endDate}
                     </dd>
                   </div>
                   <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -900,15 +901,15 @@ const OutreachDetailPage = () => {
                       {getReplyTypeText(currentOutreach.replyType)}
                     </dd>
                   </div>
-                  {currentOutreach.replyType === "manualReplyOnce" &&
-                    currentOutreach.replyMessage && (
+                  {currentOutreach.replyType === "manual_reply_once" &&
+                    currentOutreach.replyTemplate && (
                       <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt className="text-sm font-medium text-gray-500">
                           Reply Message
                         </dt>
                         <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                           <div className="bg-gray-50 p-3 rounded-md">
-                            {currentOutreach.replyMessage}
+                            {currentOutreach.replyTemplate}
                           </div>
                         </dd>
                       </div>

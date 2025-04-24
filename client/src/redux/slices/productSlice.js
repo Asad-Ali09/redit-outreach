@@ -1,4 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createProductApiCall,
+  deleteProductByIdApiCall,
+  getAllProductsApiCall,
+  getProductByIdApiCall,
+  updateProductByIdApiCall,
+} from "../../api/product.api";
 
 // Mock data for products
 const mockProducts = [
@@ -45,9 +52,10 @@ export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async (_, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return mockProducts;
+      const response = await getAllProductsApiCall();
+      return response.data.map((p) => {
+        return { id: p._id, ...p };
+      });
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -58,9 +66,13 @@ export const fetchProductById = createAsyncThunk(
   "products/fetchProductById",
   async (id, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const product = mockProducts.find((p) => p.id === Number.parseInt(id));
+      const response = await getProductByIdApiCall(id);
+
+      const product = {
+        ...response.data,
+        keywords: response.data.keywords.join(","),
+        id: response.data._id,
+      };
 
       if (!product) {
         throw new Error("Product not found");
@@ -77,14 +89,19 @@ export const createProduct = createAsyncThunk(
   "products/createProduct",
   async (productData, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       // Create a new product with a mock ID
       const newProduct = {
         id: Date.now(),
         ...productData,
+        keywords: productData.keywords.split(",").map((word) => word.trim()),
       };
+
+      // api call
+      const response = await createProductApiCall(newProduct);
+
+      if (response.status == "fail") {
+        console.error(response.message);
+      }
 
       return newProduct;
     } catch (error) {
@@ -97,10 +114,21 @@ export const updateProduct = createAsyncThunk(
   "products/updateProduct",
   async (productData, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const updatedProduct = {
+        ...productData,
+        keywords: productData.keywords.split(",").map((word) => word.trim()),
+      };
 
-      return productData;
+      const response = await updateProductByIdApiCall(
+        updatedProduct.id,
+        updatedProduct
+      );
+
+      if (response.status == "fail") {
+        console.error(response.message);
+      }
+
+      return updatedProduct;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -111,8 +139,11 @@ export const deleteProduct = createAsyncThunk(
   "products/deleteProduct",
   async (id, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await deleteProductByIdApiCall(id);
+
+      if (response.status == "fail") {
+        console.error(response.message);
+      }
 
       return id;
     } catch (error) {

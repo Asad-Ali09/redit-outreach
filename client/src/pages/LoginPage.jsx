@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { authenticateWithReddit, clearError } from "../redux/slices/authSlice";
+import { clearError } from "../redux/slices/authSlice";
 import { motion } from "framer-motion";
+import { BACKEND_URL } from "../config/constants";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ const LoginPage = () => {
   }, [isAuthenticated, navigate, dispatch]);
 
   const handleRedditLogin = () => {
-    dispatch(authenticateWithReddit());
+    window.location.href = `${BACKEND_URL}/auth/reddit`;
   };
 
   return (

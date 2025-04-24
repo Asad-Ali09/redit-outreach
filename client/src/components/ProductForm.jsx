@@ -16,7 +16,7 @@ const ProductForm = ({ product, isNew }) => {
     name: "",
     description: "",
     price: "",
-    keyword: "",
+    keywords: "",
     domain: "",
     location: {
       city: "",
@@ -33,7 +33,7 @@ const ProductForm = ({ product, isNew }) => {
         name: product.name || "",
         description: product.description || "",
         price: product.price ? product.price.toString() : "",
-        keyword: product.keyword || "",
+        keywords: product.keywords || "",
         domain: product.domain || "",
         location: product.location || { city: "", country: "" },
       });
@@ -62,8 +62,8 @@ const ProductForm = ({ product, isNew }) => {
       newErrors.price = "Price must be a valid number";
     }
 
-    if (!formData.keyword.trim()) {
-      newErrors.keyword = "Keywords are required";
+    if (!formData.keywords.trim()) {
+      newErrors.keywords = "keywordss are required";
     }
 
     if (!formData.domain.trim()) {
@@ -201,32 +201,32 @@ const ProductForm = ({ product, isNew }) => {
           </p>
         </div>
 
-        {/* Keywords */}
+        {/* keywordss */}
         <div className="sm:col-span-4">
           <label
-            htmlFor="keyword"
+            htmlFor="keywords"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Keywords
+            keywordss
           </label>
           <div>
             <input
               type="text"
-              name="keyword"
-              id="keyword"
-              value={formData.keyword}
+              name="keywords"
+              id="keywords"
+              value={formData.keywords}
               onChange={handleChange}
               placeholder="marketing, sales, technology"
               className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
-                errors.keyword ? "border-red-300" : ""
+                errors.keywords ? "border-red-300" : ""
               }`}
             />
-            {errors.keyword && (
-              <p className="mt-2 text-sm text-red-600">{errors.keyword}</p>
+            {errors.keywords && (
+              <p className="mt-2 text-sm text-red-600">{errors.keywords}</p>
             )}
           </div>
           <p className="mt-2 text-sm text-gray-500">
-            Enter keywords separated by commas.
+            Enter keywordss separated by commas.
           </p>
         </div>
 

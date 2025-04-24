@@ -20,9 +20,15 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           {product.description}
         </p>
         <div className="mt-2 space-y-1">
-          {product.keyword && (
+          {product.keywords && (
             <p className="text-xs text-gray-500">
-              <span className="font-semibold">Keywords:</span> {product.keyword}
+              <span className="font-semibold">Keywords:</span>{" "}
+              {product.keywords.map((word, index) => {
+                if (index == product.keywords.length - 1) {
+                  return word;
+                }
+                return word + ", ";
+              })}
             </p>
           )}
           {product.domain && (

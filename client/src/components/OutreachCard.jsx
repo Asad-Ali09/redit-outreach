@@ -21,11 +21,11 @@ const OutreachCard = ({ outreach, onDelete }) => {
   // Function to get reply type display text
   const getReplyTypeText = (replyType) => {
     switch (replyType) {
-      case "autoReplyOnce":
+      case "auto_reply_once":
         return "Auto Reply Once";
-      case "manualReplyOnce":
+      case "manual_reply_once":
         return "Manual Reply Once";
-      case "autoReplyComplete":
+      case "auto_reply_complete":
         return "Auto Reply Complete";
       default:
         return "Unknown";
@@ -45,20 +45,20 @@ const OutreachCard = ({ outreach, onDelete }) => {
         <div className="flex items-center justify-between">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             {outreach.subreddits && outreach.subreddits.length > 0
-              ? outreach.subreddits[0]
+              ? `r/${outreach.subreddits[0]}`
               : "No subreddit specified"}
           </h3>
-          <span
+          {/* <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
               outreach.status
             )}`}
           >
             {outreach.status.charAt(0).toUpperCase() + outreach.status.slice(1)}
-          </span>
+          </span> */}
         </div>
         <div className="mt-2 space-y-1">
           <p className="text-sm text-gray-500">
-            Product: {outreach.productName}
+            Product: {outreach.product.name}
           </p>
 
           {outreach.subreddits && outreach.subreddits.length > 1 && (
@@ -67,12 +67,9 @@ const OutreachCard = ({ outreach, onDelete }) => {
             </p>
           )}
 
-          {outreach.dateRange && (
-            <p className="text-sm text-gray-500">
-              Date range: {outreach.dateRange.startDate} to{" "}
-              {outreach.dateRange.endDate}
-            </p>
-          )}
+          <p className="text-sm text-gray-500">
+            Date range: {outreach.startDate} to {outreach.endDate}
+          </p>
 
           {outreach.maxPosts && (
             <p className="text-sm text-gray-500">

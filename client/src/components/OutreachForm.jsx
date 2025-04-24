@@ -20,8 +20,8 @@ const OutreachForm = () => {
       endDate: "",
     },
     maxPosts: 50,
-    replyType: "autoReplyOnce", // Default to auto reply once
-    replyMessage: "", // For manual reply
+    replyType: "auto_reply_once", // Default to auto reply once
+    replyTemplate: "Thanks for your post! Our product might help with that.", // For manual reply
   });
 
   const [subredditInput, setSubredditInput] = useState("");
@@ -65,10 +65,10 @@ const OutreachForm = () => {
     }
 
     if (
-      formData.replyType === "manualReplyOnce" &&
-      !formData.replyMessage.trim()
+      formData.replyType === "manual_reply_once" &&
+      !formData.replyTemplate.trim()
     ) {
-      newErrors.replyMessage = "Reply message is required for manual reply";
+      newErrors.replyTemplate = "Reply message is required for manual reply";
     }
 
     setErrors(newErrors);
@@ -126,8 +126,8 @@ const OutreachForm = () => {
     if (subreddit && !formData.subreddits.includes(subreddit)) {
       // Format subreddit to ensure it starts with r/
       const formattedSubreddit = subreddit.startsWith("r/")
-        ? subreddit
-        : `r/${subreddit}`;
+        ? subreddit.replace("r/", "")
+        : subreddit;
       setFormData((prev) => ({
         ...prev,
         subreddits: [...prev.subreddits, formattedSubreddit],
@@ -165,7 +165,6 @@ const OutreachForm = () => {
 
     const outreachData = {
       ...formData,
-      productId: Number.parseInt(formData.productId),
       productName: selectedProduct ? selectedProduct.name : "Unknown Product",
     };
 
@@ -226,7 +225,7 @@ const OutreachForm = () => {
                   key={index}
                   className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800"
                 >
-                  {subreddit}
+                  {`r/${subreddit}`}
                   <button
                     type="button"
                     onClick={() => removeSubreddit(index)}
@@ -381,18 +380,18 @@ const OutreachForm = () => {
             <div className="relative flex items-start">
               <div className="flex items-center h-5">
                 <input
-                  id="autoReplyOnce"
+                  id="auto_reply_once"
                   name="replyType"
                   type="radio"
-                  value="autoReplyOnce"
-                  checked={formData.replyType === "autoReplyOnce"}
+                  value="auto_reply_once"
+                  checked={formData.replyType === "auto_reply_once"}
                   onChange={handleChange}
                   className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
                 />
               </div>
               <div className="ml-3 text-sm">
                 <label
-                  htmlFor="autoReplyOnce"
+                  htmlFor="auto_reply_once"
                   className="font-medium text-gray-700"
                 >
                   Auto Reply Once
@@ -406,18 +405,18 @@ const OutreachForm = () => {
             <div className="relative flex items-start">
               <div className="flex items-center h-5">
                 <input
-                  id="manualReplyOnce"
+                  id="manual_reply_once"
                   name="replyType"
                   type="radio"
-                  value="manualReplyOnce"
-                  checked={formData.replyType === "manualReplyOnce"}
+                  value="manual_reply_once"
+                  checked={formData.replyType === "manual_reply_once"}
                   onChange={handleChange}
                   className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
                 />
               </div>
               <div className="ml-3 text-sm">
                 <label
-                  htmlFor="manualReplyOnce"
+                  htmlFor="manual_reply_once"
                   className="font-medium text-gray-700"
                 >
                   Manual Reply Once
@@ -431,18 +430,18 @@ const OutreachForm = () => {
             <div className="relative flex items-start">
               <div className="flex items-center h-5">
                 <input
-                  id="autoReplyComplete"
+                  id="auto_reply_complete"
                   name="replyType"
                   type="radio"
-                  value="autoReplyComplete"
-                  checked={formData.replyType === "autoReplyComplete"}
+                  value="auto_reply_complete"
+                  checked={formData.replyType === "auto_reply_complete"}
                   onChange={handleChange}
                   className="focus:ring-[#FF4500] h-4 w-4 text-[#FF4500] border-gray-300"
                 />
               </div>
               <div className="ml-3 text-sm">
                 <label
-                  htmlFor="autoReplyComplete"
+                  htmlFor="auto_reply_complete"
                   className="font-medium text-gray-700"
                 >
                   Auto Reply Complete
@@ -456,29 +455,29 @@ const OutreachForm = () => {
         </div>
 
         {/* Manual Reply Message */}
-        {formData.replyType === "manualReplyOnce" && (
+        {formData.replyType === "manual_reply_once" && (
           <div className="sm:col-span-6">
             <label
-              htmlFor="replyMessage"
+              htmlFor="replyTemplate"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Reply Message
             </label>
             <div>
               <textarea
-                id="replyMessage"
-                name="replyMessage"
+                id="replyTemplate"
+                name="replyTemplate"
                 rows={4}
-                value={formData.replyMessage}
+                value={formData.replyTemplate}
                 onChange={handleChange}
                 placeholder="Enter your custom reply message here..."
                 className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
-                  errors.replyMessage ? "border-red-300" : ""
+                  errors.replyTemplate ? "border-red-300" : ""
                 }`}
               />
-              {errors.replyMessage && (
+              {errors.replyTemplate && (
                 <p className="mt-2 text-sm text-red-600">
-                  {errors.replyMessage}
+                  {errors.replyTemplate}
                 </p>
               )}
             </div>

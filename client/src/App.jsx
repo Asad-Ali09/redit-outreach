@@ -19,10 +19,11 @@ import ChatPage from "./pages/ChatPage";
 import ChatNotificationBadge from "./components/ChatNotificationBadge";
 import { AnimatePresence } from "framer-motion";
 import OutreachDetailPage from "./pages/OutreachDetailPage";
+import LoginSuccessPage from "./pages/LoginSuccessPage";
 
 // PrivateRoute component to protect routes that require authentication
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const isAuthenticated = JSON.parse(localStorage.getItem("isAuthenticated"));
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -43,6 +44,7 @@ function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/login/success" element={<LoginSuccessPage />} />
               <Route
                 path="/products"
                 element={

@@ -1,4 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createOutreachApiCall,
+  deleteOutreachByIdApiCall,
+  getAllOutreachesApiCall,
+  getOutreachByIdApiCall,
+  updateOutreachByIdApiCall,
+} from "../../api/outreach.api";
 
 // Mock data for outreaches
 const mockOutreaches = [
@@ -120,14 +127,31 @@ const mockAnalytics = {
   ],
 };
 
+const formatDateFromISO = (isoString) => {
+  const dateOnly = isoString.split("T")[0];
+  return dateOnly;
+};
+
 // Async thunks for outreach CRUD operations
 export const fetchOutreaches = createAsyncThunk(
   "outreaches/fetchOutreaches",
   async (_, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return mockOutreaches;
+      const response = await getAllOutreachesApiCall();
+
+      if (response.status == "fail") {
+        throw error({ message: response.message });
+      }
+
+      return response.data.map((o) => {
+        return {
+          ...o,
+          id: o._id,
+          startDate: formatDateFromISO(o.startDate),
+          endDate: formatDateFromISO(o.endDate),
+          createdAt: formatDateFromISO(o.createdAt),
+        };
+      });
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -138,9 +162,24 @@ export const fetchOutreachById = createAsyncThunk(
   "outreaches/fetchOutreachById",
   async (id, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const outreach = mockOutreaches.find((o) => o.id === Number.parseInt(id));
+      const response = await getOutreachByIdApiCall(id);
+
+      if (response.status == "fail") {
+        throw error({ message: response.message });
+      }
+
+      const o = response.data;
+      const outreach = {
+        id: o._id,
+        ...o,
+        product: {
+          ...o.product,
+          id: o.product._id,
+        },
+        startDate: formatDateFromISO(o.startDate),
+        endDate: formatDateFromISO(o.endDate),
+        createdAt: formatDateFromISO(o.createdAt),
+      };
 
       if (!outreach) {
         throw new Error("Outreach not found");
@@ -173,16 +212,19 @@ export const createOutreach = createAsyncThunk(
   "outreaches/createOutreach",
   async (outreachData, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       // Create a new outreach with a mock ID
       const newOutreach = {
-        id: Date.now(),
-        status: "pending",
-        createdAt: new Date().toISOString().split("T")[0],
         ...outreachData,
+        startDate: new Date(outreachData.dateRange.startDate).toISOString(),
+        endDate: new Date(outreachData.dateRange.endDate).toISOString(),
+        product: outreachData.productId,
       };
+
+      const response = await createOutreachApiCall(newOutreach);
+
+      if (response.status == "fail") {
+        console.error(response.message);
+      }
 
       return newOutreach;
     } catch (error) {
@@ -195,10 +237,23 @@ export const updateOutreach = createAsyncThunk(
   "outreaches/updateOutreach",
   async (outreachData, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const updatedOutreach = {
+        ...outreachData,
+        startDate: new Date(outreachData.dateRange.startDate).toISOString(),
+        endDate: new Date(outreachData.dateRange.endDate).toISOString(),
+        product: outreachData.productId,
+      };
 
-      return outreachData;
+      const response = await updateOutreachByIdApiCall(
+        updatedOutreach.id,
+        updatedOutreach
+      );
+
+      if (response.status == "fail") {
+        console.error(response.message);
+      }
+
+      return updatedOutreach;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -209,8 +264,11 @@ export const deleteOutreach = createAsyncThunk(
   "outreaches/deleteOutreach",
   async (id, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await deleteOutreachByIdApiCall(id);
+
+      if (response.status == "fail") {
+        console.error(response.message);
+      }
 
       return id;
     } catch (error) {
