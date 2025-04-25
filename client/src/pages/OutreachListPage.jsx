@@ -1,24 +1,30 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   fetchOutreaches,
   deleteOutreach,
   clearOutreachError,
   clearOutreachSuccess,
+  resetOutreachRunSuccess,
 } from "../redux/slices/outreachSlice";
 import { motion, AnimatePresence } from "framer-motion";
-import OutreachCard from "../components/OutreachCard";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import RunOutreachModal from "../components/RunOutreachModal";
+import OutreachCard from "../components/OutreachCard";
 
 const OutreachListPage = () => {
   const dispatch = useDispatch();
-  const { outreaches, loading, error, success } = useSelector(
-    (state) => state.outreaches
-  );
+  const navigate = useNavigate();
+  const { outreaches, loading, error, success, outreachRunSuccess } =
+    useSelector((state) => state.outreaches);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRunModalOpen, setIsRunModalOpen] = useState(false);
   const [outreachToDelete, setOutreachToDelete] = useState(null);
+  const [outreachToRun, setOutreachToRun] = useState(null);
 
   useEffect(() => {
     dispatch(fetchOutreaches());
@@ -30,9 +36,21 @@ const OutreachListPage = () => {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    if (outreachRunSuccess && outreachToRun) {
+      navigate(`/outreaches/${outreachToRun.id}/run`);
+      dispatch(resetOutreachRunSuccess());
+    }
+  }, [outreachRunSuccess, outreachToRun, navigate, dispatch]);
+
   const handleDeleteClick = (outreach) => {
     setOutreachToDelete(outreach);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleRunClick = (outreach) => {
+    setOutreachToRun(outreach);
+    setIsRunModalOpen(true);
   };
 
   const confirmDelete = () => {
@@ -46,6 +64,17 @@ const OutreachListPage = () => {
   const cancelDelete = () => {
     setIsDeleteModalOpen(false);
     setOutreachToDelete(null);
+  };
+
+  const confirmRun = (outreachId) => {
+    setIsRunModalOpen(false);
+    setOutreachToRun(null);
+    navigate(`/outreaches/${outreachId}/run`);
+  };
+
+  const cancelRun = () => {
+    setIsRunModalOpen(false);
+    setOutreachToRun(null);
   };
 
   const containerVariants = {
@@ -178,6 +207,7 @@ const OutreachListPage = () => {
                 key={outreach.id}
                 outreach={outreach}
                 onDelete={() => handleDeleteClick(outreach)}
+                onRun={() => handleRunClick(outreach)}
               />
             ))}
           </AnimatePresence>
@@ -189,7 +219,14 @@ const OutreachListPage = () => {
         onClose={cancelDelete}
         onConfirm={confirmDelete}
         title="Delete Outreach Campaign"
-        message={`Are you sure you want to delete the outreach campaign for "${outreachToDelete?.subreddit}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete the outreach campaign for "${outreachToDelete?.subreddits}"? This action cannot be undone.`}
+      />
+
+      <RunOutreachModal
+        isOpen={isRunModalOpen}
+        onClose={cancelRun}
+        onConfirm={confirmRun}
+        outreach={outreachToRun}
       />
     </div>
   );

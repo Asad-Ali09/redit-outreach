@@ -4,8 +4,10 @@ import {
   deleteOutreachByIdApiCall,
   getAllOutreachesApiCall,
   getOutreachByIdApiCall,
+  runOutreachByIdApiCall,
   updateOutreachByIdApiCall,
 } from "../../api/outreach.api";
+import { getRelevantPostsApiCall } from "../../api/outreachPosts.api";
 
 // Mock data for outreaches
 const mockOutreaches = [
@@ -52,6 +54,80 @@ const mockOutreaches = [
     maxPosts: 200,
     replyType: "autoReplyComplete",
     createdAt: "2023-05-17",
+  },
+];
+
+// Mock posts data
+const mockPosts = [
+  {
+    id: "post1",
+    title: "Looking for a marketing tool to help with social media management",
+    text: "I'm running a small business and need a tool to help me manage my social media accounts. Any recommendations?",
+    author: "small_biz_owner",
+    date: "2023-05-05T12:30:00Z",
+    subreddit: "r/marketing",
+    url: "https://reddit.com/r/marketing/comments/post1",
+    outreach: "680bfede3903d8476a7b3a20",
+    post_id: "post1",
+    canSolve: true,
+    createdAt: "2023-05-05T12:30:00Z",
+    updatedAt: "2023-05-05T12:30:00Z",
+  },
+  {
+    id: "post2",
+    title: "Best tools for small business marketing?",
+    text: "I'm looking to expand my marketing efforts but don't have a huge budget. What tools would you recommend?",
+    author: "entrepreneur123",
+    date: "2023-05-07T09:15:00Z",
+    subreddit: "r/smallbusiness",
+    url: "https://reddit.com/r/smallbusiness/comments/post2",
+    outreach: 1,
+    post_id: "post2",
+    canSolve: true,
+    createdAt: "2023-05-07T09:15:00Z",
+    updatedAt: "2023-05-07T09:15:00Z",
+  },
+  {
+    id: "post3",
+    title: "Need advice on scaling my SaaS business",
+    text: "I've built a SaaS product that's gaining traction, but I'm not sure how to scale effectively. Any advice from those who've been there?",
+    author: "saas_founder",
+    date: "2023-05-02T15:45:00Z",
+    subreddit: "r/startups",
+    url: "https://reddit.com/r/startups/comments/post3",
+    outreach: 3,
+    post_id: "post3",
+    canSolve: true,
+    createdAt: "2023-05-02T15:45:00Z",
+    updatedAt: "2023-05-02T15:45:00Z",
+  },
+  {
+    id: "post4",
+    title: "How to find the right tech stack for my startup?",
+    text: "I'm starting a new tech company and trying to decide on the right tech stack. What factors should I consider?",
+    author: "tech_startup_ceo",
+    date: "2023-05-03T11:20:00Z",
+    subreddit: "r/technology",
+    url: "https://reddit.com/r/technology/comments/post4",
+    outreach: 3,
+    post_id: "post4",
+    canSolve: true,
+    createdAt: "2023-05-03T11:20:00Z",
+    updatedAt: "2023-05-03T11:20:00Z",
+  },
+  {
+    id: "post5",
+    title: "Looking for a co-founder for my new venture",
+    text: "I have a business idea in the e-commerce space and I'm looking for a technical co-founder. How should I approach this?",
+    author: "future_founder",
+    date: "2023-05-08T14:10:00Z",
+    subreddit: "r/entrepreneur",
+    url: "https://reddit.com/r/entrepreneur/comments/post5",
+    outreach: "680bfede3903d8476a7b3a20",
+    post_id: "post5",
+    canSolve: true,
+    createdAt: "2023-05-08T14:10:00Z",
+    updatedAt: "2023-05-08T14:10:00Z",
   },
 ];
 
@@ -277,6 +353,60 @@ export const deleteOutreach = createAsyncThunk(
   }
 );
 
+// Add the new runOutreach thunk after the deleteOutreach thunk and before fetchOutreachPosts
+export const runOutreach = createAsyncThunk(
+  "outreaches/runOutreach",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await runOutreachByIdApiCall(id);
+
+      if (response.status == "fail") {
+        throw error({ message: response.message });
+      }
+
+      return {
+        id,
+        success: true,
+        message: "Outreach campaign started successfully",
+      };
+    } catch (error) {
+      return rejectWithValue(
+        error.message || "Failed to run outreach campaign"
+      );
+    }
+  }
+);
+
+// New thunk for fetching posts for an outreach
+export const fetchOutreachPosts = createAsyncThunk(
+  "outreaches/fetchOutreachPosts",
+  async (outreachId, { rejectWithValue }) => {
+    try {
+      const response = await getRelevantPostsApiCall(outreachId);
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// New thunk for initiating a conversation
+export const initiateConversation = createAsyncThunk(
+  "outreaches/initiateConversation",
+  async ({ postId, replyType, message }, { rejectWithValue }) => {
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // In a real app, this would create a conversation in the backend
+      return { postId, replyType, success: true, message };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const initialState = {
   outreaches: [],
   currentOutreach: null,
@@ -284,6 +414,12 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  posts: [],
+  postsLoading: false,
+  initiatingConversation: false,
+  conversationInitiated: false,
+  runningOutreach: false,
+  outreachRunSuccess: false,
 };
 
 const outreachSlice = createSlice({
@@ -298,6 +434,16 @@ const outreachSlice = createSlice({
     },
     resetCurrentOutreach: (state) => {
       state.currentOutreach = null;
+    },
+    resetOutreachPosts: (state) => {
+      state.posts = [];
+    },
+    resetConversationState: (state) => {
+      state.conversationInitiated = false;
+    },
+    // Add resetOutreachRunSuccess to the reducers
+    resetOutreachRunSuccess: (state) => {
+      state.outreachRunSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -397,6 +543,50 @@ const outreachSlice = createSlice({
       .addCase(deleteOutreach.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to delete outreach";
+      })
+
+      // Add the runOutreach cases to the extraReducers builder
+      // Add these cases after the deleteOutreach cases and before the fetchOutreachPosts cases
+      .addCase(runOutreach.pending, (state) => {
+        state.runningOutreach = true;
+        state.error = null;
+        state.outreachRunSuccess = false;
+      })
+      .addCase(runOutreach.fulfilled, (state) => {
+        state.runningOutreach = false;
+        state.outreachRunSuccess = true;
+      })
+      .addCase(runOutreach.rejected, (state, action) => {
+        state.runningOutreach = false;
+        state.error = action.payload || "Failed to run outreach campaign";
+      })
+
+      // Fetch outreach posts
+      .addCase(fetchOutreachPosts.pending, (state) => {
+        state.postsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchOutreachPosts.fulfilled, (state, action) => {
+        state.postsLoading = false;
+        state.posts = action.payload;
+      })
+      .addCase(fetchOutreachPosts.rejected, (state, action) => {
+        state.postsLoading = false;
+        state.error = action.payload || "Failed to fetch posts";
+      })
+
+      // Initiate conversation
+      .addCase(initiateConversation.pending, (state) => {
+        state.initiatingConversation = true;
+        state.error = null;
+      })
+      .addCase(initiateConversation.fulfilled, (state) => {
+        state.initiatingConversation = false;
+        state.conversationInitiated = true;
+      })
+      .addCase(initiateConversation.rejected, (state, action) => {
+        state.initiatingConversation = false;
+        state.error = action.payload || "Failed to initiate conversation";
       });
   },
 });
@@ -405,5 +595,8 @@ export const {
   clearOutreachError,
   clearOutreachSuccess,
   resetCurrentOutreach,
+  resetOutreachPosts,
+  resetConversationState,
+  resetOutreachRunSuccess,
 } = outreachSlice.actions;
 export default outreachSlice.reducer;

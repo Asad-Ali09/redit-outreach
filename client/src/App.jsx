@@ -20,6 +20,7 @@ import ChatNotificationBadge from "./components/ChatNotificationBadge";
 import { AnimatePresence } from "framer-motion";
 import OutreachDetailPage from "./pages/OutreachDetailPage";
 import LoginSuccessPage from "./pages/LoginSuccessPage";
+import OutreachRunPage from "./pages/OutreachRunPage";
 
 // PrivateRoute component to protect routes that require authentication
 const PrivateRoute = ({ children }) => {
@@ -82,6 +83,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <OutreachDetailPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/outreaches/:id/run"
+                element={
+                  <PrivateRoute>
+                    <OutreachRunPage />
                   </PrivateRoute>
                 }
               />

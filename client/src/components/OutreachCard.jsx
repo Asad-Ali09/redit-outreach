@@ -3,7 +3,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const OutreachCard = ({ outreach, onDelete }) => {
+const OutreachCard = ({ outreach, onDelete, onRun }) => {
   // Function to determine status badge color
   const getStatusColor = (status) => {
     switch (status) {
@@ -103,12 +103,27 @@ const OutreachCard = ({ outreach, onDelete }) => {
             View Details
           </Link>
         </div>
-        <button
-          onClick={() => onDelete(outreach)}
-          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        >
-          Delete
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onRun(outreach);
+            }}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            Run
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(outreach);
+            }}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </motion.div>
   );

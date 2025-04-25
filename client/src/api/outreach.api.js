@@ -46,3 +46,12 @@ export const deleteOutreachByIdApiCall = async (id) => {
     return error.response.data;
   }
 };
+
+export const runOutreachByIdApiCall = async (id) => {
+  try {
+    const response = await api.post(`${path}/${id}/run`);
+    return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};
