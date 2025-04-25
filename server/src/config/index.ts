@@ -24,6 +24,9 @@ export const config = {
       process.env.FRONTEND_REDIRECT_URL ||
       "http://localhost:3000/login/success",
   },
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || "",
+  },
 } as const;
 
 export type Config = typeof config;
