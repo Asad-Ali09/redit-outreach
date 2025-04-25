@@ -48,14 +48,14 @@ async function get_data_from_reddit(subreddits, numPosts, dateRange) {
             "User-Agent": "your-app-name",
           },
           params: {
-            limit: numPosts,
+            limit: 3,
             t: dateRange, // 'day', 'week', 'month', 'year', 'all'
           },
         }
       );
 
       // Extract relevant data from the response
-      const posts = response.data.data.children.map((post) => {
+      const posts = response.data.data.children.map((post, idx) => {
         const data = post.data;
         return {
           title: data.title,
@@ -112,17 +112,17 @@ function convertToCSV(data) {
 
 (async () => {
   try {
-    const subreddits = ["javascript", "webdev"];
+    const subreddits = ["ADHD_Programmers"];
     const numPosts = 60;
     const dateRange = "week"; // Options: 'day', 'week', 'month', 'year', 'all'
 
     const posts = await get_data_from_reddit(subreddits, numPosts, dateRange);
 
     // Convert posts to CSV format
-    const csvData = convertToCSV(posts);
+    // const csvData = convertToCSV(posts);
 
     // Save to file
-    fs.writeFileSync("reddit_posts.csv", csvData);
+    // fs.writeFileSync("reddit_posts.csv", csvData);
     console.log("Data saved to reddit_posts.csv");
   } catch (error) {
     console.error("Error:", error.message);

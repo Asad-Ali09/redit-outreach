@@ -5,6 +5,7 @@ import {
   deleteOutreach,
   getOutreach,
   getOutreaches,
+  runOutreach,
 } from "../controllers/outreach.controller";
 import { requireAuth } from "../middleware/auth.middleware";
 import { validateOutreach } from "../validators/outreach.validator";
@@ -21,5 +22,7 @@ router
   .get(getOutreach)
   .patch(validateOutreach, updateOutreach)
   .delete(deleteOutreach);
+
+router.post("/:id/run", runOutreach);
 
 export default router;
