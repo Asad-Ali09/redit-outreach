@@ -26,6 +26,7 @@ export const config = {
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || "",
   },
+  chat_test: process.env.CHAT_TEST === "true",
 } as const;
 
 export type Config = typeof config;
