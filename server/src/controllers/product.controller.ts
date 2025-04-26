@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Product, { IProduct } from "../models/Product";
 import { AppError } from "../middleware/error.middleware";
+import aiResponseGenerator from "../utils/aiResponse";
 
 // Create a new product
 export const createProduct = async (
@@ -133,6 +134,33 @@ export const deleteProduct = async (
     res.status(204).json({
       status: "success",
       data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get subreddit suggestions for a product
+export const getSubredditSuggestions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const product = await Product.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!product) {
+      return next(new AppError("No product found with that ID", 404));
+    }
+
+    const subreddits = await aiResponseGenerator.suggestSubreddits(product);
+
+    res.status(200).json({
+      status: "success",
+      data: subreddits,
     });
   } catch (error) {
     next(error);

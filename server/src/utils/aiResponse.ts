@@ -122,6 +122,73 @@ Generate a response:`;
       return "I'm here to help. Could you provide more details about your needs?";
     }
   }
+
+  async suggestSubreddits(product: IProduct): Promise<string[]> {
+    const prompt = `
+Analyze this product and suggest 10-15 relevant subreddits where potential customers might be active.
+Focus on communities where people discuss related problems this product solves.
+
+Product Details:
+- Name: ${product.name}
+- Description: ${product.description}
+- Keywords: ${product.keywords.join(", ")}
+- Domain: ${product.domain}
+
+Format your response as a clean markdown list with:
+1. Primary subreddits (exact matches)
+2. Secondary subreddits (related topics)
+3. Niche communities (specific user segments)
+
+Return ONLY the list in this exact format:
+"""
+### Primary Subreddits
+- r/subreddit1
+- r/subreddit2
+
+### Secondary Subreddits
+- r/subreddit3
+- r/subreddit4
+
+### Niche Communities
+- r/subreddit5
+- r/subreddit6
+"""
+
+Example for a budgeting app:
+"""
+### Primary Subreddits
+- r/personalfinance
+- r/budget
+
+### Secondary Subreddits
+- r/Frugal
+- r/financialindependence
+
+### Niche Communities
+- r/ADHDfinance
+- r/ynab
+"""
+
+Now generate suggestions for this product:`;
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      const response = result.response.text();
+      return this.parseSubreddits(response);
+    } catch (error) {
+      console.error("Error generating subreddit suggestions:", error);
+      return [];
+    }
+  }
+
+  private parseSubreddits(response: string): string[] {
+    // Extract all r/subreddit patterns
+    const subredditRegex = /r\/\w+/g;
+    const matches = response.match(subredditRegex);
+
+    // Remove duplicates and return
+    return [...new Set(matches?.map((s) => s.substring(2)) || [])];
+  }
 }
 
 export default new AIResponseGenerator();
