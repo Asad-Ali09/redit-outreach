@@ -5,6 +5,7 @@ import {
   getProduct,
   updateProduct,
   deleteProduct,
+  getSubredditSuggestions,
 } from "../controllers/product.controller";
 import { requireAuth } from "../middleware/auth.middleware";
 import { validateProduct } from "../validators/product.validator";
@@ -21,5 +22,8 @@ router
   .get(getProduct)
   .patch(validateProduct, updateProduct)
   .delete(deleteProduct);
+
+// Get subreddit suggestions for a product
+router.get("/:id/suggestions", getSubredditSuggestions);
 
 export default router;
