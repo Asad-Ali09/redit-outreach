@@ -251,21 +251,6 @@ const OutreachRunPage = () => {
           </div>
         </div>
 
-        {initiateSuccess && (
-          <div className=" w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="rounded-md bg-green-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-green-800">Error</h3>
-                  <div className="mt-2 text-sm text-green-700">
-                    <p>Message Initiated Successfully</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         <select
           name=""
           id=""
@@ -289,6 +274,23 @@ const OutreachRunPage = () => {
                 : "These posts match your outreach criteria. Initiate conversations to engage with potential clients."}
             </p>
           </div>
+
+          {initiateSuccess && (
+            <div className=" w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="rounded-md bg-green-50 p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-green-800">
+                      Success
+                    </h3>
+                    <div className="mt-2 text-sm text-green-700">
+                      <p>Message Initiated Successfully</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {posts[selectedPostType].length === 0 ? (
             <div className="px-4 py-5 sm:p-6 text-center">
