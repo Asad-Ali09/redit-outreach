@@ -21,7 +21,10 @@ declare module "express-session" {
 const app: Express = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: config.frontendUrl,
+  credentials: true
+}));
 app.use(express.json());
 app.use(
   session({
