@@ -438,7 +438,7 @@ const OutreachRunPage = () => {
                           )}
                         </div>
                       ) : (
-                        selectedPostType !== "relevant" && (
+                        selectedPostType == "relevant" && (
                           <button
                             onClick={() => {
                               handleStartConversation(post.id);
