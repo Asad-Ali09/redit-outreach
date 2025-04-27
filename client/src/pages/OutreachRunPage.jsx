@@ -230,13 +230,13 @@ const OutreachRunPage = () => {
                   />
                 </svg>
               </button>
-              <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+              <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate py-1">
                 Run Outreach Campaign
               </h2>
             </div>
             <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
               <div className="mt-2 flex items-center text-sm text-gray-500">
-                <span className="font-medium">
+                <span className="inline-flex ms-9 items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   {currentOutreach.subreddits &&
                   currentOutreach.subreddits.length > 0
                     ? currentOutreach.subreddits.join(", ")
@@ -297,9 +297,16 @@ const OutreachRunPage = () => {
                   >
                     <div className="px-4 py-5 sm:px-6">
                       <div className="flex justify-between">
-                        <h3 className="text-lg leading-6 font-medium text-gray-900">
-                          {post.title}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg leading-6 font-medium text-gray-900">
+                            {post.title}
+                          </h3>
+                          {post.canSolve && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Solvable
+                            </span>
+                          )}
+                        </div>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           {post.subreddit}
                         </span>

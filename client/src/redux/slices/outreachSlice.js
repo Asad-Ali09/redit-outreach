@@ -401,16 +401,7 @@ export const suggestSubreddits = createAsyncThunk(
     try {
       const response = await suggestSubredditsApiCall(productId);
 
-      // Get suggested subreddits for the product
-      const suggestions = response.data;
-
-      console.log(response);
-
-      if (suggestions.length === 0) {
-        return []; // Return empty array if no suggestions found
-      }
-
-      return suggestions;
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.message || "Failed to get subreddit suggestions"
@@ -426,6 +417,8 @@ export const fetchOutreachPosts = createAsyncThunk(
     try {
       // const response = await getRelevantPostsApiCall(outreachId);
       const response = await getAllPostsApiCall(outreachId);
+
+      console.log(response);
 
       return response.data.map((p) => {
         return {
