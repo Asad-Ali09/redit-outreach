@@ -415,17 +415,24 @@ export const fetchOutreachPosts = createAsyncThunk(
   "outreaches/fetchOutreachPosts",
   async (outreachId, { rejectWithValue }) => {
     try {
-      // const response = await getRelevantPostsApiCall(outreachId);
-      const response = await getAllPostsApiCall(outreachId);
+      const relevantPostsResponse = await getRelevantPostsApiCall(outreachId);
+      const AllPostsResponse = await getAllPostsApiCall(outreachId);
 
-      console.log(response);
-
-      return response.data.map((p) => {
-        return {
-          ...p,
-          id: p._id,
-        };
-      });
+      const response = {
+        relevant: relevantPostsResponse.data.map((p) => {
+          return {
+            ...p,
+            id: p._id,
+          };
+        }),
+        all: AllPostsResponse.data.map((p) => {
+          return {
+            ...p,
+            id: p._id,
+          };
+        }),
+      };
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }

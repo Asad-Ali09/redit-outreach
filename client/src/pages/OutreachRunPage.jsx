@@ -31,6 +31,7 @@ const OutreachRunPage = () => {
   const [manualMessage, setManualMessage] = useState("");
   const [showReplyOptions, setShowReplyOptions] = useState(false);
   const [messageError, setMessageError] = useState("");
+  const [selectedPostType, setSelectedPostType] = useState("all");
 
   useEffect(() => {
     dispatch(fetchOutreachById(id));
@@ -247,19 +248,31 @@ const OutreachRunPage = () => {
           </div>
         </div>
 
+        <select
+          name=""
+          id=""
+          value={selectedPostType}
+          className=" px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent mt-2 mb-4"
+          onChange={(e) => setSelectedPostType(e.target.value)}
+        >
+          <option value="all">All Posts</option>
+          <option value="relevant">Relevant Posts</option>
+        </select>
+
         {/* Posts */}
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Relevant Posts
+              {selectedPostType == "all" ? "All Posts" : "Relevant Posts"}
             </h3>
             <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              These posts match your outreach criteria. Initiate conversations
-              to engage with potential clients.
+              {selectedPostType == "all"
+                ? ""
+                : "These posts match your outreach criteria. Initiate conversations to engage with potential clients."}
             </p>
           </div>
 
-          {posts.length === 0 ? (
+          {posts[selectedPostType].length === 0 ? (
             <div className="px-4 py-5 sm:p-6 text-center">
               <svg
                 className="mx-auto h-12 w-12 text-gray-400"
@@ -286,7 +299,7 @@ const OutreachRunPage = () => {
           ) : (
             <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
               <div className="space-y-6 sm:p-6">
-                {posts.map((post) => (
+                {posts[selectedPostType].map((post) => (
                   <div
                     key={post.id}
                     className={`bg-white shadow overflow-hidden sm:rounded-lg border ${
@@ -405,15 +418,17 @@ const OutreachRunPage = () => {
                           )}
                         </div>
                       ) : (
-                        <button
-                          onClick={() => {
-                            handleStartConversation(post.id);
-                          }}
-                          disabled={initiatingConversation}
-                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500] disabled:opacity-50"
-                        >
-                          Initiate AI Conversation
-                        </button>
+                        selectedPostType == "relevant" && (
+                          <button
+                            onClick={() => {
+                              handleStartConversation(post.id);
+                            }}
+                            disabled={initiatingConversation}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-[#FF4500] hover:bg-[#e03d00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4500] disabled:opacity-50"
+                          >
+                            Initiate AI Conversation
+                          </button>
+                        )
                       )}
                     </div>
                   </div>
