@@ -11,9 +11,11 @@ export const getRelevantPostsApiCall = async (id) => {
   }
 };
 
-export const getAllPostsApiCall = async () => {
+export const getAllPostsApiCall = async (id) => {
   try {
     const response = await api.get(`${path}/${id}/posts`);
+
+    console.log(response);
     return response.data;
   } catch (error) {
     return error.response.data;

@@ -3,14 +3,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { createOutreach } from "../redux/slices/outreachSlice";
+import {
+  createOutreach,
+  suggestSubreddits,
+  clearSuggestedSubreddits,
+} from "../redux/slices/outreachSlice";
 import { motion } from "framer-motion";
 
 const OutreachForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { products } = useSelector((state) => state.products);
-  const { loading, success } = useSelector((state) => state.outreaches);
+  const { loading, success, suggestedSubreddits, suggestingSubreddits } =
+    useSelector((state) => state.outreaches);
 
   const [formData, setFormData] = useState({
     subreddits: [],
@@ -32,6 +37,38 @@ const OutreachForm = () => {
       navigate("/outreaches");
     }
   }, [success, navigate]);
+
+  // Effect to add suggested subreddits to the form data
+  useEffect(() => {
+    if (suggestedSubreddits.length > 0) {
+      // Filter out subreddits that are already in the list
+      const newSubreddits = suggestedSubreddits.filter(
+        (subreddit) => !formData.subreddits.includes(subreddit)
+      );
+
+      if (newSubreddits.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          subreddits: [...prev.subreddits, ...newSubreddits],
+        }));
+
+        // Clear subreddits error if it exists
+        if (errors.subreddits) {
+          setErrors((prev) => ({
+            ...prev,
+            subreddits: undefined,
+          }));
+        }
+      }
+    }
+  }, [suggestedSubreddits, formData.subreddits, errors.subreddits]);
+
+  // Clean up suggested subreddits when component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(clearSuggestedSubreddits());
+    };
+  }, [dispatch]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -88,6 +125,12 @@ const OutreachForm = () => {
         ...prev,
         [name]: undefined,
       }));
+    }
+  };
+
+  const handleSuggestSubreddits = () => {
+    if (formData.productId) {
+      dispatch(suggestSubreddits(formData.productId));
     }
   };
 
@@ -180,6 +223,40 @@ const OutreachForm = () => {
       transition={{ duration: 0.3 }}
     >
       <div className="grid grid-cols-1 gap-y-8 gap-x-6 sm:grid-cols-6">
+        {/* Product Selection */}
+        <div className="sm:col-span-4">
+          <label
+            htmlFor="productId"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Product
+          </label>
+          <div>
+            <select
+              id="productId"
+              name="productId"
+              value={formData.productId}
+              onChange={handleChange}
+              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
+                errors.productId ? "border-red-300" : ""
+              }`}
+            >
+              <option value="">Select a product</option>
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.name}
+                </option>
+              ))}
+            </select>
+            {errors.productId && (
+              <p className="mt-2 text-sm text-red-600">{errors.productId}</p>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-gray-500">
+            Select the product you want to promote in these subreddits.
+          </p>
+        </div>
+
         {/* Subreddits Input */}
         <div className="sm:col-span-6">
           <label
@@ -208,6 +285,42 @@ const OutreachForm = () => {
               >
                 Add
               </button>
+              {formData.productId && (
+                <button
+                  type="button"
+                  onClick={handleSuggestSubreddits}
+                  disabled={suggestingSubreddits || !formData.productId}
+                  className="ml-3 inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#0079D3] hover:bg-[#006bb9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0079D3] disabled:opacity-50"
+                >
+                  {suggestingSubreddits ? (
+                    <span className="flex items-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Suggesting...
+                    </span>
+                  ) : (
+                    "Suggest Subreddits"
+                  )}
+                </button>
+              )}
             </div>
             {errors.subreddits && (
               <p className="mt-2 text-sm text-red-600">{errors.subreddits}</p>
@@ -247,40 +360,6 @@ const OutreachForm = () => {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Product Selection */}
-        <div className="sm:col-span-4">
-          <label
-            htmlFor="productId"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Product
-          </label>
-          <div>
-            <select
-              id="productId"
-              name="productId"
-              value={formData.productId}
-              onChange={handleChange}
-              className={`shadow-sm focus:ring-[#FF4500] focus:border-[#FF4500] block w-full sm:text-sm border-gray-300 rounded-md p-2.5 ${
-                errors.productId ? "border-red-300" : ""
-              }`}
-            >
-              <option value="">Select a product</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name}
-                </option>
-              ))}
-            </select>
-            {errors.productId && (
-              <p className="mt-2 text-sm text-red-600">{errors.productId}</p>
-            )}
-          </div>
-          <p className="mt-2 text-sm text-gray-500">
-            Select the product you want to promote in these subreddits.
-          </p>
         </div>
 
         {/* Date Range */}

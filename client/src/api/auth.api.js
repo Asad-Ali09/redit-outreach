@@ -10,3 +10,12 @@ export const devLoginApiCall = async () => {
     return error.response.data;
   }
 };
+
+export const getMyInfoApiCall = async () => {
+  try {
+    const response = await api.get(`${path}/reddit/me`);
+    return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};

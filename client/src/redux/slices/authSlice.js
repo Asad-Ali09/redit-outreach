@@ -1,20 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { getMyInfoApiCall } from "../../api/auth.api";
 
 // Async thunk for Reddit OAuth authentication
 export const authenticateUser = createAsyncThunk(
   "auth/authenticateUser",
   async (_, { rejectWithValue }) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      const response = await getMyInfoApiCall();
       // For now, we'll simulate a successful authentication
-      const mockResponse = {
-        username: "Dear-Challenge2076",
+      const user = {
+        ...response.data,
         avatar:
           "https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png",
       };
 
-      return mockResponse;
+      return user;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -35,7 +35,6 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      localStorage.setItem("isAuthenticated", false);
     },
     clearError: (state) => {
       state.error = null;

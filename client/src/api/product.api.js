@@ -46,3 +46,12 @@ export const deleteProductByIdApiCall = async (id) => {
     return error.response.data;
   }
 };
+
+export const suggestSubredditsApiCall = async (id) => {
+  try {
+    const response = await api.get(`${path}/${id}/suggestions`);
+    return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};

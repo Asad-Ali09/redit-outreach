@@ -7,7 +7,12 @@ import {
   runOutreachByIdApiCall,
   updateOutreachByIdApiCall,
 } from "../../api/outreach.api";
-import { getRelevantPostsApiCall } from "../../api/outreachPosts.api";
+import {
+  getAllPostsApiCall,
+  getRelevantPostsApiCall,
+} from "../../api/outreachPosts.api";
+import { suggestSubredditsApiCall } from "../../api/product.api";
+import { initiateConversationApiCall } from "../../api/chat.api";
 
 // Mock data for outreaches
 const mockOutreaches = [
@@ -130,6 +135,18 @@ const mockPosts = [
     updatedAt: "2023-05-08T14:10:00Z",
   },
 ];
+
+// Mock suggested subreddits based on product ID
+const mockSuggestedSubreddits = {
+  "680ab2a7f0669481e8ed2b26": [
+    "digitalmarketing",
+    "socialmedia",
+    "contentmarketing",
+    "marketingcareers",
+  ],
+  2: ["smallbusiness", "entrepreneurship", "business_ideas", "startups"],
+  3: ["webdev", "programming", "techstartups", "javascript"],
+};
 
 // Mock analytics data
 const mockAnalytics = {
@@ -377,14 +394,45 @@ export const runOutreach = createAsyncThunk(
   }
 );
 
+// New thunk for suggesting subreddits based on product
+export const suggestSubreddits = createAsyncThunk(
+  "outreaches/suggestSubreddits",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const response = await suggestSubredditsApiCall(productId);
+
+      // Get suggested subreddits for the product
+      const suggestions = response.data;
+
+      console.log(response);
+
+      if (suggestions.length === 0) {
+        return []; // Return empty array if no suggestions found
+      }
+
+      return suggestions;
+    } catch (error) {
+      return rejectWithValue(
+        error.message || "Failed to get subreddit suggestions"
+      );
+    }
+  }
+);
+
 // New thunk for fetching posts for an outreach
 export const fetchOutreachPosts = createAsyncThunk(
   "outreaches/fetchOutreachPosts",
   async (outreachId, { rejectWithValue }) => {
     try {
-      const response = await getRelevantPostsApiCall(outreachId);
+      // const response = await getRelevantPostsApiCall(outreachId);
+      const response = await getAllPostsApiCall(outreachId);
 
-      return response.data;
+      return response.data.map((p) => {
+        return {
+          ...p,
+          id: p._id,
+        };
+      });
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -394,13 +442,15 @@ export const fetchOutreachPosts = createAsyncThunk(
 // New thunk for initiating a conversation
 export const initiateConversation = createAsyncThunk(
   "outreaches/initiateConversation",
-  async ({ postId, replyType, message }, { rejectWithValue }) => {
+  async ({ outreachId, postId, message }, { rejectWithValue }) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("in");
+      const response = await initiateConversationApiCall(outreachId, postId);
+
+      console.log(response);
 
       // In a real app, this would create a conversation in the backend
-      return { postId, replyType, success: true, message };
+      return { postId, success: true, message };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -416,6 +466,7 @@ const initialState = {
   success: false,
   posts: [],
   postsLoading: false,
+  suggestedSubreddits: [],
   initiatingConversation: false,
   conversationInitiated: false,
   runningOutreach: false,
@@ -444,6 +495,9 @@ const outreachSlice = createSlice({
     // Add resetOutreachRunSuccess to the reducers
     resetOutreachRunSuccess: (state) => {
       state.outreachRunSuccess = false;
+    },
+    clearSuggestedSubreddits: (state) => {
+      state.suggestedSubreddits = [];
     },
   },
   extraReducers: (builder) => {
@@ -575,6 +629,20 @@ const outreachSlice = createSlice({
         state.error = action.payload || "Failed to fetch posts";
       })
 
+      // Add the suggestSubreddits cases
+      .addCase(suggestSubreddits.pending, (state) => {
+        state.suggestingSubreddits = true;
+        state.error = null;
+      })
+      .addCase(suggestSubreddits.fulfilled, (state, action) => {
+        state.suggestingSubreddits = false;
+        state.suggestedSubreddits = action.payload;
+      })
+      .addCase(suggestSubreddits.rejected, (state, action) => {
+        state.suggestingSubreddits = false;
+        state.error = action.payload || "Failed to get subreddit suggestions";
+      })
+
       // Initiate conversation
       .addCase(initiateConversation.pending, (state) => {
         state.initiatingConversation = true;
@@ -598,5 +666,6 @@ export const {
   resetOutreachPosts,
   resetConversationState,
   resetOutreachRunSuccess,
+  clearSuggestedSubreddits,
 } = outreachSlice.actions;
 export default outreachSlice.reducer;
