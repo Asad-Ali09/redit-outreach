@@ -13,6 +13,7 @@ import {
 } from "../../api/outreachPosts.api";
 import { suggestSubredditsApiCall } from "../../api/product.api";
 import { initiateConversationApiCall } from "../../api/chat.api";
+import toast from "react-hot-toast";
 
 // Mock data for outreaches
 const mockOutreaches = [
@@ -471,6 +472,7 @@ const initialState = {
   conversationInitiated: false,
   runningOutreach: false,
   outreachRunSuccess: false,
+  initiateSuccess: false,
 };
 
 const outreachSlice = createSlice({
@@ -647,14 +649,17 @@ const outreachSlice = createSlice({
       .addCase(initiateConversation.pending, (state) => {
         state.initiatingConversation = true;
         state.error = null;
+        state.initiateSuccess = null;
       })
       .addCase(initiateConversation.fulfilled, (state) => {
         state.initiatingConversation = false;
         state.conversationInitiated = true;
+        state.initiateSuccess = true;
       })
       .addCase(initiateConversation.rejected, (state, action) => {
         state.initiatingConversation = false;
         state.error = action.payload || "Failed to initiate conversation";
+        state.initiateSuccess = false;
       });
   },
 });

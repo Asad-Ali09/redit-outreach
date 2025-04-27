@@ -451,7 +451,7 @@ const OutreachForm = () => {
         </div>
 
         {/* Reply Type */}
-        <div className="sm:col-span-6">
+        {/* <div className="sm:col-span-6">
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Reply Type
           </label>
@@ -531,10 +531,10 @@ const OutreachForm = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Manual Reply Message */}
-        {formData.replyType === "manual_reply_once" && (
+        {/* {formData.replyType === "manual_reply_once" && (
           <div className="sm:col-span-6">
             <label
               htmlFor="replyTemplate"
@@ -565,7 +565,7 @@ const OutreachForm = () => {
               criteria.
             </p>
           </div>
-        )}
+        )} */}
       </div>
 
       <div className="pt-5 border-t border-gray-200">

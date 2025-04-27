@@ -22,6 +22,7 @@ import OutreachDetailPage from "./pages/OutreachDetailPage";
 import LoginSuccessPage from "./pages/LoginSuccessPage";
 import OutreachRunPage from "./pages/OutreachRunPage";
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 import { authenticateUser } from "./redux/slices/authSlice";
 
 // PrivateRoute component to protect routes that require authentication
@@ -36,6 +37,7 @@ const PrivateRoute = ({ children }) => {
   if (loading)
     return (
       <>
+        <Toaster position="top-right" />
         <div className="flex justify-center items-center h-64">
           <svg
             className="animate-spin h-10 w-10 text-[#FF4500]"

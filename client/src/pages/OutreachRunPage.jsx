@@ -11,6 +11,7 @@ import {
   resetConversationState,
 } from "../redux/slices/outreachSlice";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 const OutreachRunPage = () => {
   const { id } = useParams();
@@ -24,6 +25,7 @@ const OutreachRunPage = () => {
     error,
     initiatingConversation,
     conversationInitiated,
+    initiateSuccess,
   } = useSelector((state) => state.outreaches);
 
   const [selectedPostId, setSelectedPostId] = useState(null);
@@ -202,6 +204,7 @@ const OutreachRunPage = () => {
           </div>
         </>
       )}
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -247,6 +250,21 @@ const OutreachRunPage = () => {
             </div>
           </div>
         </div>
+
+        {initiateSuccess && (
+          <div className=" w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="rounded-md bg-green-50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-green-800">Error</h3>
+                  <div className="mt-2 text-sm text-green-700">
+                    <p>Message Initiated Successfully</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <select
           name=""
@@ -418,7 +436,7 @@ const OutreachRunPage = () => {
                           )}
                         </div>
                       ) : (
-                        selectedPostType == "relevant" && (
+                        selectedPostType !== "relevant" && (
                           <button
                             onClick={() => {
                               handleStartConversation(post.id);

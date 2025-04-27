@@ -754,7 +754,7 @@ const OutreachDetailPage = () => {
                 </div>
 
                 {/* Reply Type */}
-                <div className="sm:col-span-6">
+                {/* <div className="sm:col-span-6">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Reply Type
                   </label>
@@ -836,10 +836,10 @@ const OutreachDetailPage = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Manual Reply Message */}
-                {formData.replyType === "manual_reply_once" && (
+                {/* {formData.replyType === "manual_reply_once" && (
                   <div className="sm:col-span-6">
                     <label
                       htmlFor="replyTemplate"
@@ -870,7 +870,7 @@ const OutreachDetailPage = () => {
                       your criteria.
                     </p>
                   </div>
-                )}
+                )} */}
               </div>
 
               <div className="pt-5 border-t border-gray-200">
@@ -974,7 +974,7 @@ const OutreachDetailPage = () => {
                       {currentOutreach.maxPosts}
                     </dd>
                   </div>
-                  <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  {/* <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500">
                       Reply Type
                     </dt>
@@ -994,7 +994,7 @@ const OutreachDetailPage = () => {
                           </div>
                         </dd>
                       </div>
-                    )}
+                    )} */}
                 </dl>
               </div>
 
