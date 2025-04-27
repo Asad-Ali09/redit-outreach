@@ -54,24 +54,6 @@ const OutreachSchema: Schema = new Schema(
       max: 5000,
       default: 100,
     },
-    replyType: {
-      type: String,
-      enum: Object.values(ReplyType),
-      required: true,
-    },
-    replyTemplate: {
-      type: String,
-      trim: true,
-      validate: {
-        validator: function (this: IOutreach, value: string) {
-          if (this.replyType === ReplyType.AUTO_REPLY_ONCE) {
-            return !!value;
-          }
-          return true;
-        },
-        message: "Reply template is required for auto_reply_once type",
-      },
-    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",

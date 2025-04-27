@@ -9,6 +9,7 @@ import { errorHandler, AppError } from "./middleware/error.middleware";
 import productRoutes from "./routes/product.routes";
 import outreachRoutes from "./routes/outreach.routes";
 import outreachPostRoutes from "./routes/outreachPost.routes";
+import chatRoutes from "./routes/chat.routes";
 
 declare module "express-session" {
   interface SessionData {
@@ -53,6 +54,7 @@ app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/outreach", outreachRoutes);
 app.use("/outreach-posts", outreachPostRoutes);
+app.use("/chats", chatRoutes);
 
 // Basic route
 app.get("/", (req: Request, res: Response) => {

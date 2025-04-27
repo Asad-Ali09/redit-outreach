@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import axios from "axios";
 import User, { IUser } from "../models/User";
 import { config } from "../config";
+import snoowrap from "snoowrap";
 
 export const initiateRedditAuth = (req: Request, res: Response) => {
   const { reddit } = config;
@@ -140,4 +141,28 @@ export const devLogin = async (req: Request, res: Response) => {
     console.error("Dev login error:", error);
     res.status(500).json({ error: "Dev login failed" });
   }
+};
+
+export const getMyDetails = async (req: Request, res: Response) => {
+  const redditClient = new snoowrap({
+    userAgent: config.reddit.userAgent,
+    accessToken: req.user.redditAccessToken,
+  });
+
+  const user = await redditClient.getMe().then((me: any) => me);
+
+  const userDetails = {
+    username: user.name,
+    fullName: user.subreddit.title || "", // sometimes full name is stored in user's subreddit title
+    karma: {
+      linkKarma: user.link_karma,
+      commentKarma: user.comment_karma,
+    },
+    createdAt: new Date(user.created_utc * 1000), // account creation time
+  };
+
+  res.status(200).json({
+    status: "success",
+    data: userDetails,
+  });
 };

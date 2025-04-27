@@ -1,5 +1,4 @@
 import { body } from "express-validator";
-import { ReplyType } from "../models/Outreach";
 import Product from "../models/Product";
 import { handleValidationErrors } from "./validation.handler";
 
@@ -81,25 +80,5 @@ export const validateOutreach = [
     .isInt({ min: 1, max: 5000 })
     .withMessage("Max posts must be between 1 and 5000"),
 
-  // Reply type validation
-  body("replyType")
-    .notEmpty()
-    .withMessage("Reply type is required")
-    .isIn(Object.values(ReplyType))
-    .withMessage("Invalid reply type"),
-
-  // Reply template validation
-  body("replyTemplate")
-    .optional()
-    .trim()
-    .custom((value, { req }) => {
-      if (req.body.replyType === ReplyType.AUTO_REPLY_ONCE && !value) {
-        throw new Error("Reply template is required for auto_reply_once type");
-      }
-      if (value && value.length > 10000) {
-        throw new Error("Reply template must not exceed 10000 characters");
-      }
-      return true;
-    }),
   handleValidationErrors,
 ];

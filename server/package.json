@@ -21,7 +21,7 @@
     "express-session": "^1.18.0",
     "express-validator": "^7.0.1",
     "mongoose": "^8.1.0",
-    "redit-outreach-api": "file:"
+    "snoowrap": "^1.23.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
